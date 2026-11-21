@@ -1,11 +1,15 @@
 // Offline cache for the app shell and chapter data.
-const CACHE = 'ganita-mitra-v2';
+const CACHE = 'ganita-mitra-v3';
 const PRECACHE = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg', '/data/chapter.json'];
 
 self.addEventListener('install', (event) => {
+  // Do not skip waiting here: a new version waits until the user accepts the update prompt.
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)));
-  // Activate the new worker immediately instead of waiting for all tabs to close.
-  self.skipWaiting();
+});
+
+// The page posts this after the user taps "Update now".
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -30,8 +34,11 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
+          // Cache only complete, same-origin 200 responses, matching the cache-first branch.
+          if (res.status === 200 && res.type === 'basic') {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
           return res;
         })
         .catch(() => caches.match('/index.html'))
@@ -45,7 +52,9 @@ self.addEventListener('fetch', (event) => {
       (hit) =>
         hit ||
         fetch(req).then((res) => {
-          if (res.ok) {
+          // Cache only complete, same-origin 200 responses; never cache API paths.
+          const path = new URL(req.url).pathname;
+          if (res.status === 200 && res.type === 'basic' && !path.startsWith('/api/')) {
             const copy = res.clone();
             caches.open(CACHE).then((c) => c.put(req, copy));
           }

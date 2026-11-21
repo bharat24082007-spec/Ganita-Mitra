@@ -131,8 +131,40 @@ export const STRINGS = {
   questionsAttemptedCount: { te: 'ప్రయత్నించిన ప్రశ్నలు: {n}', en: 'Questions attempted: {n}' },
   correctCount: { te: 'సరైనవి: {n}', en: 'Correct: {n}' },
   noTopicsYet: { te: 'ఇంకా అంశాల డేటా లేదు', en: 'No topic data yet' },
-
-
+  offlineBanner: {
+    te: 'ఇంటర్నెట్ లేదు. పాఠాలు, సాధన కొనసాగించవచ్చు. AI మిత్ర పనిచేయదు.',
+    en: 'No internet. Lessons and practice still work. Mitra AI needs internet.',
+  },
+  offlineSavedPending: {
+    te: 'ఇంటర్నెట్ వచ్చినప్పుడు సమాధానం తనిఖీ అవుతుంది.',
+    en: 'Saved. It will be checked when you are back online.',
+  },
+  syncPendingCount: { te: 'సింక్ కావాల్సినవి: {count}', en: 'Waiting to sync: {count}' },
+  syncInProgress: { te: 'సింక్ అవుతోంది…', en: 'Syncing…' },
+  syncFailedRetained: {
+    te: 'సింక్ విఫలమైంది. మీ డేటా ఫోన్‌లోనే భద్రంగా ఉంది. మళ్లీ ప్రయత్నించండి.',
+    en: 'Sync failed. Your progress is safely kept on this phone. Try again.',
+  },
+  syncRetry: { te: 'మళ్లీ ప్రయత్నించండి', en: 'Try again' },
+  lastSynced: { te: 'చివరిసారి సింక్: {time}', en: 'Last synced: {time}' },
+  tutorNeedsInternet: {
+    te: 'మిత్ర AI పాఠాలు ఇంటర్నెట్ ద్వారా మాత్రమే పనిచేస్తుంది. ఇంటర్నెట్ వచ్చినప్పుడు మళ్లీ అడగండి.',
+    en: 'Mitra AI works only with internet. Ask again when you are online.',
+  },
+  lessonSavedOffline: {
+    te: 'పాఠం పూర్తయింది. ఇంటర్నెట్ వచ్చినప్పుడు సేవ్ అవుతుంది.',
+    en: 'Lesson completed. It will be saved when you are back online.',
+  },
+  updateAvailable: { te: 'కొత్త వెర్షన్ అందుబాటులో ఉంది.', en: 'A new version is available.' },
+  updateNow: { te: 'ఇప్పుడు అప్‌డేట్ చేయండి', en: 'Update now' },
+  storageFull: {
+    te: 'ఫోన్ స్టోరేజ్ నిండింది. సింక్ కోసం కొంత స్థలం ఖాళీ చేయండి.',
+    en: 'Phone storage is full. Free some space to keep progress.',
+  },
+  storageError: {
+    te: 'స్థానిక నిల్వ అందుబాటులో లేదు. ఇంటర్నెట్ ఉన్నప్పుడు పనిచేస్తుంది.',
+    en: 'Offline storage is unavailable. The app works when online.',
+  },
 };
 
 // Default language for new users and for the profile screen before any choice is saved.

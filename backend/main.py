@@ -352,6 +352,7 @@ def sync(req: SyncRequest, subject: str = Depends(require_student)):
 class CheckRequest(BaseModel):
     answer: str = Field(max_length=100)
     lang: Literal["te", "en"] = "te"
+    clientId: str | None = Field(default=None, min_length=1, max_length=64)
 
 
 MASTERY_BANDS = [(0, 39, "needs_support"), (40, 69, "learning"), (70, 89, "improving"), (90, 100, "strong")]
@@ -404,9 +405,10 @@ def check_question(question_id: str, body: CheckRequest, subject: str = Depends(
     prior = db.count_prior_wrong_attempts(subject, question_id)
     is_correct = check_answer(q["question_type"], q["answer"], body.answer, VERIFICATION[question_id])
     wrong_count = prior + (0 if is_correct else 1)
-    db.insert_attempt_if_new(
+    client_id = body.clientId if body.clientId is not None else uuid.uuid4().hex
+    recorded = db.insert_attempt_if_new(
         {
-            "client_id": uuid.uuid4().hex,
+            "client_id": client_id,
             "student_id": subject,
             "question_id": question_id,
             "topic": q["topic"],
@@ -416,6 +418,18 @@ def check_question(question_id: str, body: CheckRequest, subject: str = Depends(
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
     )
+    if not recorded:
+        # This client id was already recorded (a replay, possibly by another student).
+        # Reveal nothing about the stored row and write nothing new.
+        return {
+            "is_correct": is_correct,
+            "attempts": prior,
+            "hint": None,
+            "solution": None,
+            "explanation_en": None,
+            "explanation_te": None,
+            "mistake_hint": None,
+        }
     return {
         "is_correct": is_correct,
         "attempts": prior + 1,

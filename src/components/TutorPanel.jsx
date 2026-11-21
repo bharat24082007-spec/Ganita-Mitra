@@ -23,9 +23,14 @@ function SendIcon() {
   );
 }
 
+// askTutor returns { ok:false, status:0, code:'network' } when the request never reached the server.
+function isNetworkFailure(res) {
+  return res.code === 'network' || res.status === 0;
+}
+
 // Maps a failed tutor call to a user message. The tutor needs internet, so network errors say so.
 function tutorErrorKey(res) {
-  if (res.code === 'network') return 'needInternetTutor';
+  if (isNetworkFailure(res)) return 'tutorNeedsInternet';
   if (res.status === 429) return 'tutorRateLimited';
   if (res.status === 503) return 'tutorNotConfigured';
   if (res.status === 502) return 'tutorUpstream';
@@ -48,11 +53,12 @@ export default function TutorPanel({ question }) {
   // Strings in this panel follow the tutor's own language, not the app language
   const tr = (key, vars) => translate(tutorLang, key, vars);
 
-  // Track connection; stop the mic when going offline
+  // Track connection; stop the mic and the typing indicator when going offline
   useEffect(() => {
     const on = () => setOnline(true);
     const off = () => {
       setOnline(false);
+      setBusy(false);
       stopRef.current?.();
       stopRef.current = null;
       setListening(false);
@@ -77,13 +83,22 @@ export default function TutorPanel({ question }) {
 
   async function send() {
     const text = doubt.trim();
-    if (!text || busy) return;
+    // Offline: never start a request, and keep the unsent text in the input
+    if (!text || busy || !online || navigator.onLine === false) return;
     const qid = question.id;
-    setMessages((m) => [...m, { role: 'student', text }]);
+    const studentMsg = { role: 'student', text };
+    setMessages((m) => [...m, studentMsg]);
     setDoubt('');
     setBusy(true);
     const res = await askTutor(text, qid, tutorLang);
     if (qidRef.current !== qid) return;
+    if (!res.ok && isNetworkFailure(res)) {
+      // Not sent: remove the bubble, put the text back, and show the offline message
+      setMessages((m) => [...m.filter((x) => x !== studentMsg), { role: 'error', text: tr('tutorNeedsInternet') }]);
+      setDoubt((current) => (current ? current : text));
+      setBusy(false);
+      return;
+    }
     setMessages((m) => [
       ...m,
       res.ok ? { role: 'tutor', text: res.reply } : { role: 'error', text: tr(tutorErrorKey(res)) },
@@ -112,6 +127,8 @@ export default function TutorPanel({ question }) {
   }
 
   const showMic = online && !voiceFailed && isVoiceSupported();
+  // The typing indicator only shows while online
+  const typing = busy && online;
 
   return (
     <div className="flex flex-col gap-3">
@@ -126,15 +143,7 @@ export default function TutorPanel({ question }) {
         {tr('tutorTitle')}
       </button>
 
-      {/* Offline: gray card, no input */}
-      {open && !online && (
-        <div className="card bg-gray-100 text-gray-700 p-4 text-lg flex items-start gap-3">
-          <span aria-hidden="true" className="text-2xl">📡</span>
-          <p>{tr('tutorNeedsNet')}</p>
-        </div>
-      )}
-
-      {open && online && (
+      {open && (
         <div className="card flex flex-col gap-4 p-4">
           {/* Header: teacher avatar, title, language switch */}
           <div className="flex items-center justify-between gap-3">
@@ -159,10 +168,18 @@ export default function TutorPanel({ question }) {
             </button>
           </div>
 
-          <p className="text-base text-gray-600">{tr('tutorNeedsNet')}</p>
+          {/* Offline: gray notice; the input stays so unsent text is kept, but send is disabled */}
+          {!online && (
+            <div className="bg-gray-100 text-gray-700 p-4 text-lg rounded-2xl flex items-start gap-3">
+              <span aria-hidden="true" className="text-2xl">📡</span>
+              <p>{tr('tutorNeedsInternet')}</p>
+            </div>
+          )}
+
+          {online && <p className="text-base text-gray-600">{tr('tutorNeedsNet')}</p>}
 
           {/* Chat area: scrolls past 50vh */}
-          {(messages.length > 0 || busy) && (
+          {(messages.length > 0 || typing) && (
             <div className="flex flex-col gap-3 max-h-[50vh] overflow-y-auto">
               {messages.map((m, i) => (
                 <div
@@ -180,7 +197,7 @@ export default function TutorPanel({ question }) {
               ))}
 
               {/* Busy: three pulsing dots, with the thinking text as label and caption */}
-              {busy && (
+              {typing && (
                 <div className="self-start flex flex-col gap-1">
                   <div
                     role="status"
@@ -225,7 +242,7 @@ export default function TutorPanel({ question }) {
             <button
               type="button"
               onClick={send}
-              disabled={busy}
+              disabled={busy || !online}
               aria-label={tr('send')}
               className="shrink-0 min-w-[56px] min-h-[56px] w-14 h-14 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-md disabled:opacity-50"
             >

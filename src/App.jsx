@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ProfileScreen from './components/ProfileScreen.jsx';
 import PinPad from './components/PinPad.jsx';
 import LessonScreen from './components/LessonScreen.jsx';
@@ -8,6 +8,7 @@ import ParentView from './components/ParentView.jsx';
 import OfflineBadge from './components/OfflineBadge.jsx';
 import { BookIcon, PencilIcon, ChartIcon, SwitchIcon } from './components/Icons.jsx';
 import { flushQueue, startSyncOnReconnect } from './lib/sync.js';
+import { registerServiceWorker, applyUpdate } from './lib/swRegister.js';
 import { verifyStudentPin } from './lib/profiles.js';
 import { apiRequest, clearStudentToken, errorKeyFor, getStudentToken } from './lib/api.js';
 import { getLang, setLang, getLastLang, setLastLang } from './lib/db.js';
@@ -37,6 +38,9 @@ export default function App() {
   // Questions come from the backend once a student is signed in
   const [questions, setQuestions] = useState(null);
   const [questionsError, setQuestionsError] = useState(false);
+  // A new service worker is waiting; the registration is kept so applyUpdate can activate it
+  const [updateReady, setUpdateReady] = useState(false);
+  const registrationRef = useRef(null);
 
   useEffect(() => {
     if (!currentProfile) {
@@ -69,6 +73,14 @@ export default function App() {
 
   // Push queued attempts on load and whenever the connection returns
   useEffect(() => startSyncOnReconnect(), []);
+
+  // Register the service worker once; show a banner when a new version is waiting
+  useEffect(() => {
+    registerServiceWorker((registration) => {
+      registrationRef.current = registration;
+      setUpdateReady(true);
+    });
+  }, []);
 
   // Restore the last used language on start
   useEffect(() => {
@@ -264,6 +276,21 @@ export default function App() {
   return (
     <LangContext.Provider value={{ lang, setLang: changeLang, t: tx }}>
       <OfflineBadge />
+      {updateReady && (
+        <div
+          role="status"
+          className="fixed bottom-0 inset-x-0 z-40 mx-auto flex w-full max-w-[480px] flex-wrap items-center justify-between gap-2 bg-violet-600 px-4 py-3 text-lg text-white shadow-[0_-4px_14px_rgba(0,0,0,0.12)]"
+        >
+          <span>{tx('updateAvailable')}</span>
+          <button
+            type="button"
+            onClick={() => applyUpdate(registrationRef.current)}
+            className="min-h-[44px] px-4 bg-amber-500 text-gray-900 rounded-xl font-semibold"
+          >
+            {tx('updateNow')}
+          </button>
+        </div>
+      )}
       <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col">
         {topBar}
         <main className={`flex-1 px-4 pt-4 ${isHome ? 'pb-24' : 'pb-4'}`}>{body}</main>

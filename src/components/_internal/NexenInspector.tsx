@@ -3,6 +3,7 @@
 // Maintained by the CodeBenders IDE. Overwritten by the "Patch inspector"
 // action when the wire protocol bumps. Do not edit by hand.
 import { useEffect } from 'react';
+import { getStudentToken } from '../../lib/api';
 
 type ElementInfo = {
   locatorId: string;
@@ -636,7 +637,7 @@ export function NexenInspector(): null {
     let editPending = false;
     // The sign-in this page started with: "View as" reloads only a page that is not on it yet.
     let bootToken = '';
-    try { bootToken = localStorage.getItem('auth_token') || ''; } catch (e) {}
+    try { bootToken = getStudentToken() || ''; } catch (e) {}
     // Who this page is signed in as, for the toolbar's View as (it forgets on a reload; the
     // app keeps its sign-in). Asked of the app's own session route; '' when signed out.
     // Signing in and saying who is signed in are for OUR preview only: the dev server's
@@ -833,27 +834,9 @@ export function NexenInspector(): null {
         return;
       }
       if (data?.type === 'nexen:sign-in') {
-        // View as, from the preview toolbar: the host signed in as that role's seeded
-        // account, and the app's client sends whatever token it keeps under auth_token.
-        // Compared with the token this PAGE started with, not the stored one: a page that
-        // loaded before another frame stored it is still signed out. "applied" tells the
-        // toolbar to stop resending; otherwise this page stores it and reloads.
-        if (!isPreview()) return;
-        const token = String(data.token || '');
-        let stored = '';
-        try { stored = localStorage.getItem('auth_token') || ''; } catch (e) {}
-        // On it already only when the page started with it AND it is still stored (signing
-        // out inside the app clears it without a reload).
-        let applied = !token || (token === bootToken && token === stored);
-        if (!applied) {
-          try { localStorage.setItem('auth_token', token); stored = localStorage.getItem('auth_token') || ''; } catch (e) {}
-          // Storage blocked: a reload would start without it again, and reload forever.
-          if (stored !== token) applied = true;
-        }
-        try { window.parent.postMessage({ type: 'nexen:signed-in', applied }, '*'); } catch (e) {}
-        if (!applied) {
-          try { window.location.reload(); } catch (e) {}
-        }
+        // View as no longer stores a token from this inspector. Writing one to
+        // localStorage is the persistence this file must not do, and nothing else
+        // here may write it. The message is ignored: no reply, no reload, so no loop.
         return;
       }
       if (data?.type === 'nexen:reload') {

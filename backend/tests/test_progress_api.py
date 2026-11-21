@@ -316,3 +316,77 @@ def test_one_wrong_then_correct_has_no_solution(api):
     assert body["is_correct"] is True
     assert body["solution"] is None
 
+
+
+def _check_with_client_id(client, token, qid, answer, client_id, lang="en"):
+    return client.post(
+        f"/api/questions/{qid}/check",
+        json={"answer": answer, "lang": lang, "clientId": client_id},
+        headers=_auth(token),
+    )
+
+
+def test_client_id_is_recorded_once(api):
+    client, _main, _db = api
+    sid, token = _student_with_token(client, "1234")
+    cid = "11111111-aaaa-4aaa-8aaa-000000000001"
+    assert _check_with_client_id(client, token, COEF_QID, COEF_WRONG, cid).status_code == 200
+    assert _check_with_client_id(client, token, COEF_QID, COEF_WRONG, cid).status_code == 200
+    r = client.get(f"/api/students/{sid}/progress", headers=_auth(token))
+    assert r.status_code == 200
+    assert r.json()["questions_attempted"] == 1
+
+
+def test_replayed_client_id_has_no_hint_or_solution(api):
+    client, _main, _db = api
+    sid, token = _student_with_token(client, "1234")
+    cid = "11111111-aaaa-4aaa-8aaa-000000000002"
+    first = _check_with_client_id(client, token, COEF_QID, COEF_WRONG, cid)
+    assert first.status_code == 200
+    assert first.json()["hint"] is not None
+    r = _check_with_client_id(client, token, COEF_QID, COEF_WRONG, cid)
+    assert r.status_code == 200
+    body = r.json()
+    assert body["hint"] is None
+    assert body["solution"] is None
+    assert body["is_correct"] is False
+
+
+def test_client_id_collision_across_students_does_not_leak_or_record(api):
+    client, _main, _db = api
+    sid_a, token_a = _student_with_token(client, "1111")
+    sid_b, token_b = _student_with_token(client, "2222")
+    cid = "11111111-aaaa-4aaa-8aaa-000000000003"
+    assert _check_with_client_id(client, token_a, COEF_QID, COEF_WRONG, cid).status_code == 200
+    r = _check_with_client_id(client, token_b, COEF_QID, COEF_WRONG, cid)
+    assert r.status_code == 200
+    body = r.json()
+    assert body["hint"] is None
+    assert body["solution"] is None
+    r_b = client.get(f"/api/students/{sid_b}/progress", headers=_auth(token_b))
+    assert r_b.status_code == 200
+    assert r_b.json()["questions_attempted"] == 0
+    r_a = client.get(f"/api/students/{sid_a}/progress", headers=_auth(token_a))
+    assert r_a.status_code == 200
+    assert r_a.json()["questions_attempted"] == 1
+
+
+def test_check_without_client_id_unchanged(api):
+    client, _main, _db = api
+    sid, token = _student_with_token(client, "1234")
+    for _ in range(2):
+        r = _check(client, token, COEF_QID, COEF_WRONG)
+        assert r.status_code == 200
+        assert r.json()["is_correct"] is False
+    r = client.get(f"/api/students/{sid}/progress", headers=_auth(token))
+    assert r.status_code == 200
+    assert r.json()["questions_attempted"] == 2
+
+
+def test_client_id_too_long_rejected(api):
+    client, _main, _db = api
+    sid, token = _student_with_token(client, "1234")
+    too_long = "a" * 65
+    r = _check_with_client_id(client, token, COEF_QID, COEF_WRONG, too_long)
+    assert r.status_code == 422
+

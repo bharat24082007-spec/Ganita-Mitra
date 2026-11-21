@@ -2,7 +2,8 @@ const DB_NAME = 'ganita-mitra';
 // Version 2 adds uuid + synced fields to attempts so they can be synced later.
 // Version 3 adds the lessonViews store used for the progress screen.
 // Version 4 adds the prefs store used for the language choice.
-const DB_VERSION = 4;
+// Version 5 adds questions, pendingAttempts and pendingCompletions for offline practice and sync.
+const DB_VERSION = 5;
 
 // Cached so every caller shares one connection instead of reopening the DB.
 let dbPromise = null;
@@ -55,6 +56,22 @@ export function openDB() {
         // Small key/value store for per-profile settings such as language.
         if (event.oldVersion < 4 && !db.objectStoreNames.contains('prefs')) {
           db.createObjectStore('prefs', { keyPath: 'key' });
+        }
+        // Version 5 stores, each created only when missing.
+        if (!db.objectStoreNames.contains('questions')) {
+          db.createObjectStore('questions', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('pendingAttempts')) {
+          const pending = db.createObjectStore('pendingAttempts', { keyPath: 'uuid' });
+          if (!pending.indexNames.contains('profileId')) {
+            pending.createIndex('profileId', 'profileId');
+          }
+        }
+        if (!db.objectStoreNames.contains('pendingCompletions')) {
+          const completions = db.createObjectStore('pendingCompletions', { keyPath: 'key' });
+          if (!completions.indexNames.contains('profileId')) {
+            completions.createIndex('profileId', 'profileId');
+          }
         }
       };
       req.onsuccess = () => resolve(req.result);
@@ -233,6 +250,191 @@ export async function getLessonViews(profileId) {
       req.onerror = () => reject(req.error);
     });
     return all.filter((r) => r.profileId === profileId);
+  } catch {
+    return [];
+  }
+}
+
+// Maps a storage error to the small set of codes callers handle. Never throws.
+function storageError(err) {
+  return { ok: false, error: err && err.name === 'QuotaExceededError' ? 'QUOTA' : 'STORAGE' };
+}
+
+// Queues one answer that still needs syncing. A duplicate uuid means it is already saved.
+export async function savePendingAttempt(record) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('pendingAttempts', 'readwrite');
+      const req = tx.objectStore('pendingAttempts').add(record);
+      req.onerror = () => reject(req.error);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    return { ok: true };
+  } catch (err) {
+    if (err && err.name === 'ConstraintError') return { ok: true };
+    return storageError(err);
+  }
+}
+
+// Returns queued answers for one profile. [] on failure. Never throws.
+export async function listPendingAttempts(profileId) {
+  try {
+    const db = await openDB();
+    return await new Promise((resolve, reject) => {
+      const req = db
+        .transaction('pendingAttempts', 'readonly')
+        .objectStore('pendingAttempts')
+        .index('profileId')
+        .getAll(IDBKeyRange.only(profileId));
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  } catch {
+    return [];
+  }
+}
+
+// Merges patch into the queued answer in one transaction. Missing uuid is a no-op.
+export async function updatePendingAttempt(uuid, patch) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('pendingAttempts', 'readwrite');
+      const store = tx.objectStore('pendingAttempts');
+      const req = store.get(uuid);
+      req.onsuccess = () => {
+        const record = req.result;
+        if (!record) return;
+        store.put(Object.assign(record, patch));
+      };
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    return { ok: true };
+  } catch (err) {
+    return storageError(err);
+  }
+}
+
+// Removes one queued answer once the server has accepted it. Never throws.
+export async function deletePendingAttempt(uuid) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('pendingAttempts', 'readwrite');
+      tx.objectStore('pendingAttempts').delete(uuid);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    return { ok: true };
+  } catch (err) {
+    return storageError(err);
+  }
+}
+
+// Queues a lesson completion. put() keeps it idempotent per key.
+export async function savePendingCompletion(record) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('pendingCompletions', 'readwrite');
+      tx.objectStore('pendingCompletions').put(record);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    return { ok: true };
+  } catch (err) {
+    return storageError(err);
+  }
+}
+
+// Returns queued completions for one profile. [] on failure. Never throws.
+export async function listPendingCompletions(profileId) {
+  try {
+    const db = await openDB();
+    return await new Promise((resolve, reject) => {
+      const req = db
+        .transaction('pendingCompletions', 'readonly')
+        .objectStore('pendingCompletions')
+        .index('profileId')
+        .getAll(IDBKeyRange.only(profileId));
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  } catch {
+    return [];
+  }
+}
+
+// Removes one queued completion once it has been synced. Never throws.
+export async function deletePendingCompletion(key) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('pendingCompletions', 'readwrite');
+      tx.objectStore('pendingCompletions').delete(key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    return { ok: true };
+  } catch (err) {
+    return storageError(err);
+  }
+}
+
+// Only these fields may be cached offline. Answers, hints and solutions never go into IndexedDB.
+const CACHEABLE_QUESTION_KEYS = [
+  'id',
+  'lesson_id',
+  'topic',
+  'difficulty',
+  'question_type',
+  'prompt_en',
+  'prompt_te',
+  'hint_count',
+];
+
+// Stores question rows in one transaction, keeping only the safe fields. Never throws.
+export async function cacheQuestions(rows) {
+  try {
+    const list = Array.isArray(rows) ? rows : [];
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('questions', 'readwrite');
+      const store = tx.objectStore('questions');
+      for (const row of list) {
+        const safe = {};
+        for (const key of CACHEABLE_QUESTION_KEYS) {
+          if (row && Object.prototype.hasOwnProperty.call(row, key)) safe[key] = row[key];
+        }
+        store.put(safe);
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    return { ok: true };
+  } catch (err) {
+    return storageError(err);
+  }
+}
+
+// Returns all cached questions (safe fields only). [] on failure. Never throws.
+export async function getCachedQuestions() {
+  try {
+    const db = await openDB();
+    return await new Promise((resolve, reject) => {
+      const req = db.transaction('questions', 'readonly').objectStore('questions').getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
   } catch {
     return [];
   }

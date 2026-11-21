@@ -1,5 +1,5 @@
 // Student profiles come from the backend. No PIN is stored or compared in the browser.
-import { apiRequest, getStudentToken, setStudentToken, setStudentId } from './api.js';
+import { apiRequest, getStudentToken, setStudentSession } from './api.js';
 
 // Backend avatar keys mapped to the emoji shown on screen
 export const AVATARS = [
@@ -49,8 +49,7 @@ export async function verifyStudentPin(studentId, pin) {
     method: 'POST',
     body: { pin },
   });
-  setStudentToken(res.token);
-  setStudentId(studentId);
+  setStudentSession(studentId, res.token);
   return res;
 }
 

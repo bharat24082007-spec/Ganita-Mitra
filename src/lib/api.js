@@ -3,7 +3,6 @@
 
 export const API_BASE = import.meta.env.VITE_API_BASE || '';
 
-const STUDENT_TOKEN_KEY = 'lmt.studentToken';
 const PARENT_TOKEN_KEY = 'lmt.parentToken';
 
 export const ERROR_CODES = {
@@ -99,49 +98,73 @@ export async function apiRequest(path, { method = 'GET', body, token, headers = 
   return data;
 }
 
-// ---- Student token (sessionStorage only) ----
+// ---- Student session (sessionStorage only) ----
+// The student id and token are stored as ONE value, so they are always written and read together.
+const STUDENT_SESSION_KEY = 'lmt.studentSession';
+// Legacy keys from earlier builds. Removed on clear, never written again.
+const LEGACY_STUDENT_TOKEN_KEY = 'lmt.studentToken';
+const LEGACY_STUDENT_ID_KEY = 'lmt.studentId';
 
-export function getStudentToken() {
+function readStudentSession() {
   try {
-    return sessionStorage.getItem(STUDENT_TOKEN_KEY);
+    const parsed = JSON.parse(sessionStorage.getItem(STUDENT_SESSION_KEY));
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      typeof parsed.id === 'string' &&
+      typeof parsed.token === 'string'
+    ) {
+      return { id: parsed.id, token: parsed.token };
+    }
+    return { id: null, token: null };
   } catch {
-    return null;
+    return { id: null, token: null };
   }
 }
 
-export function setStudentToken(token) {
+export function getStudentSession() {
+  return readStudentSession();
+}
+
+export function setStudentSession(id, token) {
   try {
-    if (token) sessionStorage.setItem(STUDENT_TOKEN_KEY, token);
-    else sessionStorage.removeItem(STUDENT_TOKEN_KEY);
+    if (typeof id === 'string' && id && typeof token === 'string' && token) {
+      sessionStorage.setItem(STUDENT_SESSION_KEY, JSON.stringify({ id, token }));
+    } else {
+      sessionStorage.removeItem(STUDENT_SESSION_KEY);
+    }
   } catch {
     /* storage unavailable */
   }
 }
 
-// The active student's id, kept beside the token so the sync queue can send only that profile's rows.
-const STUDENT_ID_KEY = 'lmt.studentId';
+export function getStudentToken() {
+  return getStudentSession().token;
+}
 
 export function getStudentId() {
-  try {
-    return sessionStorage.getItem(STUDENT_ID_KEY);
-  } catch {
-    return null;
-  }
+  return getStudentSession().id;
+}
+
+// Compatibility wrappers: read-modify-write through the single session value.
+export function setStudentToken(token) {
+  setStudentSession(readStudentSession().id, token);
 }
 
 export function setStudentId(id) {
+  setStudentSession(id, readStudentSession().token);
+}
+
+export function clearStudentToken() {
   try {
-    if (id) sessionStorage.setItem(STUDENT_ID_KEY, id);
-    else sessionStorage.removeItem(STUDENT_ID_KEY);
+    sessionStorage.removeItem(STUDENT_SESSION_KEY);
+    sessionStorage.removeItem(LEGACY_STUDENT_TOKEN_KEY);
+    sessionStorage.removeItem(LEGACY_STUDENT_ID_KEY);
   } catch {
     /* storage unavailable */
   }
 }
 
-export function clearStudentToken() {
-  setStudentToken(null);
-  setStudentId(null);
-}
 
 // ---- Parent token (sessionStorage only) ----
 
