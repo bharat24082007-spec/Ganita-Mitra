@@ -1,8 +1,51 @@
 @import "tailwindcss";
 
+/* Base look: warm page background, dark text, large text for a basic phone */
 html, body {
   font-family: "Noto Sans Telugu", "Nirmala UI", system-ui, sans-serif;
   font-size: 20px;
-  background: #faf5ff;
+  background: #fdf8f3;
   color: #1f2937;
+}
+
+/* Rounded white card with a soft violet shadow */
+.card {
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.1);
+}
+
+/* Small "pop" for correct answers and rewards */
+@keyframes pop {
+  0% { transform: scale(0.9); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.anim-pop { animation: pop 350ms ease-out; }
+
+/* Short shake for wrong answers */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+.anim-shake { animation: shake 400ms ease-in-out; }
+
+/* Gentle fade-in and rise for new content */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-fade { animation: fadeUp 300ms ease-out; }
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  .anim-pop,
+  .anim-shake,
+  .anim-fade {
+    animation: none;
+  }
 }

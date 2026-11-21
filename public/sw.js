@@ -1,5 +1,5 @@
 // Offline cache for the app shell and chapter data.
-const CACHE = 'ganita-mitra-v1';
+const CACHE = 'ganita-mitra-v2';
 const PRECACHE = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg', '/data/chapter.json'];
 
 self.addEventListener('install', (event) => {

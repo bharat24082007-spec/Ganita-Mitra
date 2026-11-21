@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getUnsyncedAttempts } from '../lib/db.js';
+import { useLang } from '../lib/i18n.js';
 
 // Shows how many answers are still waiting to reach the server
 export default function SyncIndicator() {
+  const { t } = useLang();
   const [pending, setPending] = useState(0);
 
   useEffect(() => {
@@ -23,13 +25,18 @@ export default function SyncIndicator() {
   }, []);
 
   const done = pending === 0;
+  // Pill with a coloured dot: green when all is synced, amber while answers are pending
   return (
     <div
-      className={`self-start rounded-full px-4 py-2 text-base font-semibold ${
-        done ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'
+      className={`self-start inline-flex items-center gap-2 rounded-full px-3 py-1 text-base font-semibold ${
+        done ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-900'
       }`}
     >
-      {done ? 'సమకాలీకరించబడింది ✓' : `సమకాలీకరణ పెండింగ్: ${pending}`}
+      <span
+        aria-hidden="true"
+        className={`w-3 h-3 rounded-full ${done ? 'bg-green-500' : 'bg-amber-500'}`}
+      />
+      {done ? t('syncDone') : t('syncPending', { count: pending })}
     </div>
   );
 }

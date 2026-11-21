@@ -1,0 +1,609 @@
+{
+  "chapter": {
+    "id": "linear_equations_2var",
+    "title_en": "Linear Equations in Two Variables",
+    "title_te": "రెండు చరరాశులలో రేఖీయ సమీకరణాలు",
+    "class_level": 9,
+    "subject": "mathematics"
+  },
+  "lessons": [
+    {
+      "id": "l1",
+      "title_en": "Standard form ax + by + c = 0",
+      "title_te": "ప్రమాణ రూపం ax + by + c = 0",
+      "te_review": true,
+      "objectives_en": [
+        "Write a linear equation in two variables in the form ax + by + c = 0",
+        "Identify the coefficients a, b and c of an equation"
+      ],
+      "objectives_te": [
+        "రెండు చరరాశులలో రేఖీయ సమీకరణాన్ని ax + by + c = 0 రూపంలో రాయగలగడం",
+        "సమీకరణంలోని గుణకాలు a, b, c లను గుర్తించగలగడం"
+      ],
+      "body_en": [
+        "A linear equation in two variables x and y can be written in the standard form ax + by + c = 0, where a, b and c are integers and a and b are not both zero.",
+        "To bring an equation to standard form, move every term to one side so that the other side is 0. Then read off the coefficient of x as a, the coefficient of y as b, and the constant term as c.",
+        "Remember that a term with no visible coefficient has coefficient 1 or -1, and a missing term has coefficient 0."
+      ],
+      "body_te": [
+        "x, y అనే రెండు చరరాశులలో రేఖీయ సమీకరణాన్ని ax + by + c = 0 ప్రమాణ రూపంలో రాయవచ్చు. ఇక్కడ a, b, c పూర్ణాంకాలు, a, b రెండూ ఒకేసారి సున్నా కావు.",
+        "సమీకరణాన్ని ప్రమాణ రూపంలోకి మార్చడానికి అన్ని పదాలను ఒక వైపుకు తీసుకురండి, రెండవ వైపు 0 అవుతుంది. తరువాత x గుణకాన్ని a, y గుణకాన్ని b, స్థిరపదాన్ని c గా గుర్తించండి.",
+        "x లేదా y ముందు సంఖ్య కనిపించకపోతే, దాని గుణకం 1 లేదా -1 అవుతుంది. ఒక పదం లేకపోతే దాని గుణకం 0."
+      ],
+      "worked_examples": [
+        {
+          "title_en": "Identify a, b and c in 4x - 3y + 8 = 0",
+          "title_te": "4x - 3y + 8 = 0 లో a, b, c లను గుర్తించడం",
+          "steps_en": [
+            "The equation is already in the form ax + by + c = 0.",
+            "Coefficient of x is 4, so a = 4.",
+            "Coefficient of y is -3, so b = -3.",
+            "Constant term is 8, so c = 8."
+          ],
+          "steps_te": [
+            "ఈ సమీకరణం ఇప్పటికే ax + by + c = 0 రూపంలో ఉంది.",
+            "x గుణకం 4, కాబట్టి a = 4.",
+            "y గుణకం -3, కాబట్టి b = -3.",
+            "స్థిరపదం 8, కాబట్టి c = 8."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "l2",
+      "title_en": "Solutions as ordered pairs",
+      "title_te": "క్రమయుగ్మాలుగా పరిష్కారాలు",
+      "te_review": true,
+      "objectives_en": [
+        "Understand that a solution of an equation is an ordered pair (x, y)",
+        "Check whether a given point satisfies an equation"
+      ],
+      "objectives_te": [
+        "సమీకరణ పరిష్కారం ఒక క్రమయుగ్మం (x, y) అని అర్థం చేసుకోవడం",
+        "ఇచ్చిన బిందువు సమీకరణాన్ని తృప్తిపరుస్తుందో లేదో తనిఖీ చేయడం"
+      ],
+      "body_en": [
+        "A solution of a linear equation in two variables is an ordered pair (x, y) that makes the equation true when its values are substituted.",
+        "To check a point (p, q), put x = p and y = q into the equation. If the left side equals the right side, the point is a solution; otherwise it is not.",
+        "A linear equation has infinitely many solutions, so we can find a new solution by choosing any value for x and solving for y."
+      ],
+      "body_te": [
+        "రెండు చరరాశులలో రేఖీయ సమీకరణ పరిష్కారం అంటే సమీకరణాన్ని నిజం చేసే క్రమయుగ్మం (x, y).",
+        "(p, q) బిందువును తనిఖీ చేయడానికి x = p, y = q ను సమీకరణంలో ఉంచండి. ఎడమ వైపు కుడి వైపుకు సమానమైతే అది పరిష్కారం, లేకపోతే కాదు.",
+        "రేఖీయ సమీకరణానికి అనంత పరిష్కారాలు ఉంటాయి. x కు ఏదైనా విలువ ఎంచుకుని y ను కనుగొనవచ్చు."
+      ],
+      "worked_examples": [
+        {
+          "title_en": "Check whether (2, -1) is a solution of x + 2y = 0",
+          "title_te": "x + 2y = 0 కు (2, -1) పరిష్కారమా అని తనిఖీ చేయడం",
+          "steps_en": [
+            "Put x = 2 and y = -1 into x + 2y.",
+            "Left side: 2 + 2(-1) = 2 - 2 = 0.",
+            "Left side equals 0, which is the right side, so (2, -1) is a solution."
+          ],
+          "steps_te": [
+            "x = 2, y = -1 ను x + 2y లో ఉంచండి.",
+            "ఎడమ వైపు: 2 + 2(-1) = 2 - 2 = 0.",
+            "ఎడమ వైపు 0 కు సమానం, కాబట్టి (2, -1) పరిష్కారం."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "l3",
+      "title_en": "Drawing a line from a table of solutions",
+      "title_te": "పరిష్కారాల పట్టిక నుండి సరళరేఖ గీయడం",
+      "te_review": true,
+      "objectives_en": [
+        "Make a table of solutions for a linear equation",
+        "Plot the solutions and draw the straight line they lie on"
+      ],
+      "objectives_te": [
+        "రేఖీయ సమీకరణానికి పరిష్కారాల పట్టిక తయారుచేయడం",
+        "పరిష్కారాలను బిందువులుగా గుర్తించి వాటి గుండా వెళ్లే సరళరేఖ గీయడం"
+      ],
+      "body_en": [
+        "To draw the graph of a linear equation, choose a few values of x, find the matching y for each, and write the pairs in a table.",
+        "Plot the pairs as points on a graph sheet. All points of a linear equation lie on one straight line, so two points are enough to draw it, and a third point is used to check.",
+        "A point of the graph that is not on the line is not a solution of the equation."
+      ],
+      "body_te": [
+        "రేఖీయ సమీకరణ గ్రాఫ్ గీయడానికి x కు కొన్ని విలువలు ఎంచుకుని, ప్రతి దానికి సరిపోయే y ను కనుగొని, జతలను పట్టికలో రాయండి.",
+        "ఈ జతలను గ్రాఫ్ కాగితంపై బిందువులుగా గుర్తించండి. రేఖీయ సమీకరణ బిందువులన్నీ ఒకే సరళరేఖపై ఉంటాయి కాబట్టి రెండు బిందువులు సరిపోతాయి, మూడవది తనిఖీ కోసం వాడవచ్చు.",
+        "రేఖపై లేని బిందువు ఆ సమీకరణానికి పరిష్కారం కాదు."
+      ],
+      "worked_examples": [
+        {
+          "title_en": "Table of solutions for y = x + 2",
+          "title_te": "y = x + 2 కు పరిష్కారాల పట్టిక",
+          "steps_en": [
+            "Choose x = 0, 1, 2.",
+            "When x = 0, y = 2; when x = 1, y = 3; when x = 2, y = 4.",
+            "Plot (0, 2), (1, 3), (2, 4) and join them with a straight line."
+          ],
+          "steps_te": [
+            "x = 0, 1, 2 అని ఎంచుకోండి.",
+            "x = 0 అయితే y = 2; x = 1 అయితే y = 3; x = 2 అయితే y = 4.",
+            "(0, 2), (1, 3), (2, 4) బిందువులు గుర్తించి సరళరేఖతో కలపండి."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lx",
+      "title_en": "Extension: simultaneous equations",
+      "title_te": "అదనపు అంశం: ఏకకాల సమీకరణాలు",
+      "te_review": true,
+      "objectives_en": [
+        "Solve a pair of linear equations by substitution",
+        "Solve a pair of linear equations by elimination"
+      ],
+      "objectives_te": [
+        "రెండు రేఖీయ సమీకరణాల జతను ప్రతిక్షేపణ పద్ధతిలో సాధించడం",
+        "రెండు రేఖీయ సమీకరణాల జతను తొలగింపు పద్ధతిలో సాధించడం"
+      ],
+      "body_en": [
+        "A pair of linear equations is solved when we find one ordered pair (x, y) that satisfies both equations at the same time.",
+        "In substitution, express one variable from one equation and put it into the other equation. In elimination, add or subtract the equations so that one variable disappears.",
+        "After finding one variable, put its value into either equation to find the other, and check the pair in both equations."
+      ],
+      "body_te": [
+        "రెండు రేఖీయ సమీకరణాల జతను సాధించడం అంటే రెండు సమీకరణాలను ఒకేసారి తృప్తిపరిచే ఒక క్రమయుగ్మం (x, y) కనుగొనడం.",
+        "ప్రతిక్షేపణ పద్ధతిలో ఒక సమీకరణం నుండి ఒక చరరాశిని వ్యక్తపరచి మరో సమీకరణంలో ఉంచండి. తొలగింపు పద్ధతిలో సమీకరణాలను కూడి లేదా తీసివేసి ఒక చరరాశిని తొలగించండి.",
+        "ఒక చరరాశి విలువ కనుగొన్న తర్వాత దానిని ఏదైనా సమీకరణంలో ఉంచి మరొకటి కనుగొనండి, తరువాత రెండు సమీకరణాలలోనూ తనిఖీ చేయండి."
+      ],
+      "worked_examples": [
+        {
+          "title_en": "Solve x + y = 10 and x - y = 2 by elimination",
+          "title_te": "x + y = 10, x - y = 2 లను తొలగింపు పద్ధతిలో సాధించడం",
+          "steps_en": [
+            "Add the two equations: 2x = 12, so x = 6.",
+            "Put x = 6 into x + y = 10: y = 4.",
+            "Check: 6 + 4 = 10 and 6 - 4 = 2. So (6, 4) is the solution."
+          ],
+          "steps_te": [
+            "రెండు సమీకరణాలను కూడండి: 2x = 12, కాబట్టి x = 6.",
+            "x = 6 ను x + y = 10 లో ఉంచండి: y = 4.",
+            "తనిఖీ: 6 + 4 = 10, 6 - 4 = 2. కాబట్టి (6, 4) పరిష్కారం."
+          ]
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "lesson_id": "l1",
+      "topic": "coefficients",
+      "difficulty": 1,
+      "question_type": "coefficients",
+      "prompt_en": "Identify a, b and c in 2x + 3y - 12 = 0.",
+      "prompt_te": "2x + 3y - 12 = 0 లో a, b, c లను గుర్తించండి.",
+      "equation": {"a": 2, "b": 3, "c": -12},
+      "answer": "a=2, b=3, c=-12",
+      "solution_steps_en": [
+        "The equation is already in the form ax + by + c = 0.",
+        "a is the coefficient of x, which is 2.",
+        "b is the coefficient of y, which is 3.",
+        "c is the constant term, which is -12."
+      ],
+      "solution_steps_te": [
+        "ఈ సమీకరణం ఇప్పటికే ax + by + c = 0 రూపంలో ఉంది.",
+        "x గుణకం 2, కాబట్టి a = 2.",
+        "y గుణకం 3, కాబట్టి b = 3.",
+        "స్థిరపదం -12, కాబట్టి c = -12."
+      ],
+      "hints": [
+        {"level": 1, "en": "Look at the number in front of x for a.", "te": "a కోసం x ముందున్న సంఖ్యను చూడండి."},
+        {"level": 2, "en": "The term without x or y gives c. Keep its sign.", "te": "x లేదా y లేని పదం c ను ఇస్తుంది. దాని గుర్తును ఉంచండి."}
+      ],
+      "explanation_en": "In ax + by + c = 0, the coefficients are read directly with their signs.",
+      "explanation_te": "ax + by + c = 0 లో గుణకాలను వాటి గుర్తులతో నేరుగా చదవాలి."
+    },
+    {
+      "id": "q2",
+      "lesson_id": "l1",
+      "topic": "standard_form",
+      "difficulty": 1,
+      "question_type": "coefficients",
+      "prompt_en": "Identify a, b and c in x - 4y + 7 = 0.",
+      "prompt_te": "x - 4y + 7 = 0 లో a, b, c లను గుర్తించండి.",
+      "equation": {"a": 1, "b": -4, "c": 7},
+      "answer": "a=1, b=-4, c=7",
+      "solution_steps_en": [
+        "The equation is already in standard form.",
+        "x has no number in front, so a = 1.",
+        "The coefficient of y is -4, so b = -4.",
+        "The constant term is 7, so c = 7."
+      ],
+      "solution_steps_te": [
+        "ఈ సమీకరణం ఇప్పటికే ప్రమాణ రూపంలో ఉంది.",
+        "x ముందు సంఖ్య లేదు, కాబట్టి a = 1.",
+        "y గుణకం -4, కాబట్టి b = -4.",
+        "స్థిరపదం 7, కాబట్టి c = 7."
+      ],
+      "hints": [
+        {"level": 1, "en": "A bare x means the coefficient is 1.", "te": "సంఖ్య లేని x యొక్క గుణకం 1."},
+        {"level": 2, "en": "The minus sign in front of 4y belongs to b.", "te": "4y ముందున్న minus గుర్తు b కు చెందుతుంది."}
+      ],
+      "explanation_en": "A bare x has coefficient 1, and the sign before a term belongs to that term.",
+      "explanation_te": "సంఖ్య లేని x గుణకం 1, ఒక పదం ముందున్న గుర్తు ఆ పదానికే చెందుతుంది."
+    },
+    {
+      "id": "q3",
+      "lesson_id": "l1",
+      "topic": "standard_form",
+      "difficulty": 2,
+      "question_type": "coefficients",
+      "prompt_en": "Write 5x = 2y + 9 in standard form and identify a, b and c.",
+      "prompt_te": "5x = 2y + 9 ను ప్రమాణ రూపంలో రాసి a, b, c లను గుర్తించండి.",
+      "equation": {"a": 5, "b": -2, "c": -9},
+      "answer": "a=5, b=-2, c=-9",
+      "solution_steps_en": [
+        "Move 2y and 9 to the left side: 5x - 2y - 9 = 0.",
+        "Read the coefficients: a = 5, b = -2, c = -9."
+      ],
+      "solution_steps_te": [
+        "2y మరియు 9 ను ఎడమ వైపుకు తీసుకురండి: 5x - 2y - 9 = 0.",
+        "గుణకాలు చదవండి: a = 5, b = -2, c = -9."
+      ],
+      "hints": [
+        {"level": 1, "en": "Make the right side 0 by moving terms across the equals sign.", "te": "సమాన గుర్తు దాటించి కుడి వైపు 0 చేయండి."},
+        {"level": 2, "en": "When 2y moves to the left, its sign changes to minus.", "te": "2y ను ఎడమ వైపుకు తీసుకువెళ్లినప్పుడు దాని గుర్తు minus అవుతుంది."}
+      ],
+      "explanation_en": "Moving a term to the other side of the equation changes its sign.",
+      "explanation_te": "ఒక పదాన్ని సమీకరణంలో అవతలి వైపుకు తీసుకువెళ్తే దాని గుర్తు మారుతుంది."
+    },
+    {
+      "id": "q4",
+      "lesson_id": "l1",
+      "topic": "coefficients",
+      "difficulty": 2,
+      "question_type": "coefficients",
+      "prompt_en": "Write 3y - x = 6 in standard form and identify a, b and c.",
+      "prompt_te": "3y - x = 6 ను ప్రమాణ రూపంలో రాసి a, b, c లను గుర్తించండి.",
+      "equation": {"a": -1, "b": 3, "c": -6},
+      "answer": "a=-1, b=3, c=-6",
+      "solution_steps_en": [
+        "Move 6 to the left side: 3y - x - 6 = 0.",
+        "Rearrange in x, y, constant order: -x + 3y - 6 = 0.",
+        "Read the coefficients: a = -1, b = 3, c = -6."
+      ],
+      "solution_steps_te": [
+        "6 ను ఎడమ వైపుకు తీసుకురండి: 3y - x - 6 = 0.",
+        "x, y, స్థిరపద క్రమంలో అమర్చండి: -x + 3y - 6 = 0.",
+        "గుణకాలు చదవండి: a = -1, b = 3, c = -6."
+      ],
+      "hints": [
+        {"level": 1, "en": "Bring every term to the left so that the right side is 0.", "te": "కుడి వైపు 0 అయ్యేలా అన్ని పదాలను ఎడమ వైపుకు తీసుకురండి."},
+        {"level": 2, "en": "The x term is -x, so a is -1, not 1.", "te": "x పదం -x, కాబట్టి a = 1 కాదు, -1."}
+      ],
+      "explanation_en": "Here x is subtracted, so the coefficient of x is -1.",
+      "explanation_te": "ఇక్కడ x తీసివేయబడుతోంది, కాబట్టి x గుణకం -1."
+    },
+    {
+      "id": "q5",
+      "lesson_id": "l2",
+      "topic": "solutions",
+      "difficulty": 1,
+      "question_type": "numeric",
+      "prompt_en": "Is the point (2, 3) a solution of x + y - 5 = 0? Answer yes or no.",
+      "prompt_te": "(2, 3) బిందువు x + y - 5 = 0 కు పరిష్కారమా? అవును లేదా కాదు అని చెప్పండి.",
+      "equation_check": {"equation": "x + y - 5 = 0", "point": [2, 3]},
+      "answer": "yes",
+      "solution_steps_en": [
+        "Substitute x = 2 and y = 3: 2 + 3 - 5.",
+        "2 + 3 - 5 = 0, which equals the right side.",
+        "So the point is a solution: yes."
+      ],
+      "solution_steps_te": [
+        "x = 2, y = 3 ను ఉంచండి: 2 + 3 - 5.",
+        "2 + 3 - 5 = 0, ఇది కుడి వైపుకు సమానం.",
+        "కాబట్టి ఈ బిందువు పరిష్కారం: అవును."
+      ],
+      "hints": [
+        {"level": 1, "en": "Replace x with 2 and y with 3 in the equation.", "te": "సమీకరణంలో x స్థానంలో 2, y స్థానంలో 3 ఉంచండి."},
+        {"level": 2, "en": "Add and subtract the numbers. Is the result 0?", "te": "సంఖ్యలను కూడి తీసివేయండి. ఫలితం 0 వస్తుందా?"}
+      ],
+      "explanation_en": "A point is a solution exactly when it makes the left side equal to 0.",
+      "explanation_te": "ఎడమ వైపు 0 అయితేనే బిందువు పరిష్కారం అవుతుంది."
+    },
+    {
+      "id": "q6",
+      "lesson_id": "l2",
+      "topic": "solutions",
+      "difficulty": 1,
+      "question_type": "numeric",
+      "prompt_en": "Is the point (1, 4) a solution of 2x - y + 1 = 0? Answer yes or no.",
+      "prompt_te": "(1, 4) బిందువు 2x - y + 1 = 0 కు పరిష్కారమా? అవును లేదా కాదు అని చెప్పండి.",
+      "equation_check": {"equation": "2x - y + 1 = 0", "point": [1, 4]},
+      "answer": "no",
+      "solution_steps_en": [
+        "Substitute x = 1 and y = 4: 2(1) - 4 + 1.",
+        "2 - 4 + 1 = -1, which is not 0.",
+        "So the point is not a solution: no."
+      ],
+      "solution_steps_te": [
+        "x = 1, y = 4 ను ఉంచండి: 2(1) - 4 + 1.",
+        "2 - 4 + 1 = -1, ఇది 0 కాదు.",
+        "కాబట్టి ఈ బిందువు పరిష్కారం కాదు: కాదు."
+      ],
+      "hints": [
+        {"level": 1, "en": "Put x = 1 and y = 4 into 2x - y + 1.", "te": "2x - y + 1 లో x = 1, y = 4 ఉంచండి."},
+        {"level": 2, "en": "Is the final value exactly 0?", "te": "చివరి విలువ ఖచ్చితంగా 0నా?"}
+      ],
+      "explanation_en": "The value is -1, not 0, so the point lies off the line.",
+      "explanation_te": "విలువ -1, 0 కాదు, కాబట్టి బిందువు రేఖపై ఉండదు."
+    },
+    {
+      "id": "q7",
+      "lesson_id": "l2",
+      "topic": "solutions",
+      "difficulty": 2,
+      "question_type": "numeric",
+      "prompt_en": "Is the point (3, -2) a solution of 4x + 3y = 6? Answer yes or no.",
+      "prompt_te": "(3, -2) బిందువు 4x + 3y = 6 కు పరిష్కారమా? అవును లేదా కాదు అని చెప్పండి.",
+      "equation_check": {"equation": "4x + 3y - 6 = 0", "point": [3, -2]},
+      "answer": "yes",
+      "solution_steps_en": [
+        "Write the equation as 4x + 3y - 6 = 0.",
+        "Substitute x = 3 and y = -2: 4(3) + 3(-2) - 6 = 12 - 6 - 6.",
+        "12 - 6 - 6 = 0, so the point is a solution: yes."
+      ],
+      "solution_steps_te": [
+        "సమీకరణాన్ని 4x + 3y - 6 = 0 గా రాయండి.",
+        "x = 3, y = -2 ఉంచండి: 4(3) + 3(-2) - 6 = 12 - 6 - 6.",
+        "12 - 6 - 6 = 0, కాబట్టి ఈ బిందువు పరిష్కారం: అవును."
+      ],
+      "hints": [
+        {"level": 1, "en": "First move 6 to the left side.", "te": "ముందుగా 6 ను ఎడమ వైపుకు తీసుకురండి."},
+        {"level": 2, "en": "Be careful: 3 times -2 is -6.", "te": "జాగ్రత్త: 3 × -2 = -6."}
+      ],
+      "explanation_en": "Moving 6 to the left gives the standard form, and the point makes it 0.",
+      "explanation_te": "6 ను ఎడమ వైపుకు తీసుకువెళ్తే ప్రమాణ రూపం వస్తుంది, ఈ బిందువుతో అది 0 అవుతుంది."
+    },
+    {
+      "id": "q8",
+      "lesson_id": "l2",
+      "topic": "ordered_pairs",
+      "difficulty": 2,
+      "question_type": "ordered_pair",
+      "prompt_en": "For 2x + y = 7, when x = 3, find the ordered pair (x, y).",
+      "prompt_te": "2x + y = 7 లో x = 3 అయితే క్రమయుగ్మం (x, y) కనుగొనండి.",
+      "equations": ["2x + y = 7"],
+      "answer": "x=3, y=1",
+      "solution_steps_en": [
+        "Put x = 3 into 2x + y = 7: 6 + y = 7.",
+        "Solve: y = 1.",
+        "The ordered pair is (3, 1)."
+      ],
+      "solution_steps_te": [
+        "x = 3 ను 2x + y = 7 లో ఉంచండి: 6 + y = 7.",
+        "సాధించండి: y = 1.",
+        "క్రమయుగ్మం (3, 1)."
+      ],
+      "hints": [
+        {"level": 1, "en": "Replace x with 3 and find the number y must be.", "te": "x స్థానంలో 3 ఉంచి y విలువ ఎంత ఉండాలో కనుగొనండి."},
+        {"level": 2, "en": "What number added to 6 gives 7?", "te": "6 కు ఏ సంఖ్య కలిపితే 7 వస్తుంది?"}
+      ],
+      "explanation_en": "Once x is fixed, the equation has one unknown y, which we solve for directly.",
+      "explanation_te": "x స్థిరపడితే సమీకరణంలో y ఒక్కటే తెలియనిది, దానిని నేరుగా సాధిస్తాము."
+    },
+    {
+      "id": "q9",
+      "lesson_id": "l3",
+      "topic": "graphs",
+      "difficulty": 1,
+      "question_type": "ordered_pair",
+      "prompt_en": "For x + y = 6, when x = 4, find the ordered pair (x, y) for the table.",
+      "prompt_te": "x + y = 6 లో x = 4 అయితే పట్టిక కోసం క్రమయుగ్మం (x, y) కనుగొనండి.",
+      "equations": ["x + y = 6"],
+      "answer": "x=4, y=2",
+      "solution_steps_en": [
+        "Put x = 4 into x + y = 6: 4 + y = 6.",
+        "Solve: y = 2.",
+        "The table row is (4, 2)."
+      ],
+      "solution_steps_te": [
+        "x = 4 ను x + y = 6 లో ఉంచండి: 4 + y = 6.",
+        "సాధించండి: y = 2.",
+        "పట్టిక వరుస (4, 2)."
+      ],
+      "hints": [
+        {"level": 1, "en": "Put 4 in place of x.", "te": "x స్థానంలో 4 ఉంచండి."},
+        {"level": 2, "en": "What must be added to 4 to make 6?", "te": "4 కు ఏ సంఖ్య కలిపితే 6 వస్తుంది?"}
+      ],
+      "explanation_en": "Each row of the table is an ordered pair that satisfies the equation.",
+      "explanation_te": "పట్టికలోని ప్రతి వరుస సమీకరణాన్ని తృప్తిపరిచే క్రమయుగ్మం."
+    },
+    {
+      "id": "q10",
+      "lesson_id": "l3",
+      "topic": "graphs",
+      "difficulty": 2,
+      "question_type": "numeric",
+      "prompt_en": "Does the point (0, 3) lie on the line y = 2x + 3? Answer yes or no.",
+      "prompt_te": "(0, 3) బిందువు y = 2x + 3 రేఖపై ఉందా? అవును లేదా కాదు అని చెప్పండి.",
+      "equation_check": {"equation": "2x - y + 3 = 0", "point": [0, 3]},
+      "answer": "yes",
+      "solution_steps_en": [
+        "Write y = 2x + 3 as 2x - y + 3 = 0.",
+        "Substitute x = 0 and y = 3: 0 - 3 + 3 = 0.",
+        "So the point lies on the line: yes."
+      ],
+      "solution_steps_te": [
+        "y = 2x + 3 ను 2x - y + 3 = 0 గా రాయండి.",
+        "x = 0, y = 3 ఉంచండి: 0 - 3 + 3 = 0.",
+        "కాబట్టి ఈ బిందువు రేఖపై ఉంది: అవును."
+      ],
+      "hints": [
+        {"level": 1, "en": "Move y to the left side first.", "te": "ముందుగా y ను ఎడమ వైపుకు తీసుకురండి."},
+        {"level": 2, "en": "Check whether 0 - 3 + 3 equals 0.", "te": "0 - 3 + 3 = 0 అవుతుందో చూడండి."}
+      ],
+      "explanation_en": "A point lies on the line exactly when it satisfies the equation.",
+      "explanation_te": "బిందువు సమీకరణాన్ని తృప్తిపరిస్తేనే అది రేఖపై ఉంటుంది."
+    },
+    {
+      "id": "q11",
+      "lesson_id": "l3",
+      "topic": "graphs",
+      "difficulty": 2,
+      "question_type": "numeric",
+      "prompt_en": "Does the point (0, 2) lie on the line x + 2y = 4? Answer yes or no.",
+      "prompt_te": "(0, 2) బిందువు x + 2y = 4 రేఖపై ఉందా? అవును లేదా కాదు అని చెప్పండి.",
+      "equation_check": {"equation": "x + 2y - 4 = 0", "point": [0, 2]},
+      "answer": "yes",
+      "solution_steps_en": [
+        "Write the equation as x + 2y - 4 = 0.",
+        "Substitute x = 0 and y = 2: 0 + 4 - 4 = 0.",
+        "So the point lies on the line: yes."
+      ],
+      "solution_steps_te": [
+        "సమీకరణాన్ని x + 2y - 4 = 0 గా రాయండి.",
+        "x = 0, y = 2 ఉంచండి: 0 + 4 - 4 = 0.",
+        "కాబట్టి ఈ బిందువు రేఖపై ఉంది: అవును."
+      ],
+      "hints": [
+        {"level": 1, "en": "Put x = 0 and y = 2 into the left side.", "te": "ఎడమ వైపులో x = 0, y = 2 ఉంచండి."},
+        {"level": 2, "en": "2 times 2 is 4.", "te": "2 × 2 = 4."}
+      ],
+      "explanation_en": "The left side becomes 0, so the point is on the graph.",
+      "explanation_te": "ఎడమ వైపు 0 అవుతుంది, కాబట్టి బిందువు గ్రాఫ్‌పై ఉంది."
+    },
+    {
+      "id": "q12",
+      "lesson_id": "l3",
+      "topic": "graphs",
+      "difficulty": 3,
+      "question_type": "ordered_pair",
+      "prompt_en": "For 3x - y = 5, when x = 1, find the ordered pair (x, y) for the table.",
+      "prompt_te": "3x - y = 5 లో x = 1 అయితే పట్టిక కోసం క్రమయుగ్మం (x, y) కనుగొనండి.",
+      "equations": ["3x - y = 5"],
+      "answer": "x=1, y=-2",
+      "solution_steps_en": [
+        "Put x = 1 into 3x - y = 5: 3 - y = 5.",
+        "Solve: -y = 2, so y = -2.",
+        "The table row is (1, -2)."
+      ],
+      "solution_steps_te": [
+        "x = 1 ను 3x - y = 5 లో ఉంచండి: 3 - y = 5.",
+        "సాధించండి: -y = 2, కాబట్టి y = -2.",
+        "పట్టిక వరుస (1, -2)."
+      ],
+      "hints": [
+        {"level": 1, "en": "Put 1 in place of x and simplify 3 times 1.", "te": "x స్థానంలో 1 ఉంచి 3 × 1 ను సరళీకరించండి."},
+        {"level": 2, "en": "If 3 - y = 5, then y must be negative.", "te": "3 - y = 5 అయితే y ఋణ సంఖ్య అవ్వాలి."}
+      ],
+      "explanation_en": "Negative values of y are allowed, and they appear in tables of solutions.",
+      "explanation_te": "y కు ఋణ విలువలు అనుమతించబడతాయి, అవి పరిష్కార పట్టికలలో కనిపిస్తాయి."
+    },
+    {
+      "id": "q13",
+      "lesson_id": "lx",
+      "topic": "elimination",
+      "difficulty": 1,
+      "question_type": "ordered_pair",
+      "prompt_en": "Solve x + y = 9 and x - y = 3.",
+      "prompt_te": "x + y = 9 మరియు x - y = 3 లను సాధించండి.",
+      "equations": ["x + y = 9", "x - y = 3"],
+      "answer": "x=6, y=3",
+      "solution_steps_en": [
+        "Add the equations: 2x = 12, so x = 6.",
+        "Put x = 6 into x + y = 9: y = 3.",
+        "Check: 6 + 3 = 9 and 6 - 3 = 3."
+      ],
+      "solution_steps_te": [
+        "సమీకరణాలను కూడండి: 2x = 12, కాబట్టి x = 6.",
+        "x = 6 ను x + y = 9 లో ఉంచండి: y = 3.",
+        "తనిఖీ: 6 + 3 = 9, 6 - 3 = 3."
+      ],
+      "hints": [
+        {"level": 1, "en": "Adding the two equations removes y.", "te": "రెండు సమీకరణాలను కూడితే y తొలగిపోతుంది."},
+        {"level": 2, "en": "Half of 12 is x. Then use x + y = 9.", "te": "12 లో సగం x. తరువాత x + y = 9 వాడండి."}
+      ],
+      "explanation_en": "Elimination by addition removes y, and substitution then gives the second value.",
+      "explanation_te": "కూడిక ద్వారా తొలగింపు y ను తొలగిస్తుంది, తరువాత ప్రతిక్షేపణతో రెండవ విలువ వస్తుంది."
+    },
+    {
+      "id": "q14",
+      "lesson_id": "lx",
+      "topic": "substitution",
+      "difficulty": 2,
+      "question_type": "ordered_pair",
+      "prompt_en": "Solve y = x + 1 and x + y = 9 by substitution.",
+      "prompt_te": "y = x + 1 మరియు x + y = 9 లను ప్రతిక్షేపణ పద్ధతిలో సాధించండి.",
+      "equations": ["y = x + 1", "x + y = 9"],
+      "answer": "x=4, y=5",
+      "solution_steps_en": [
+        "Put y = x + 1 into x + y = 9: x + (x + 1) = 9.",
+        "Simplify: 2x + 1 = 9, so 2x = 8 and x = 4.",
+        "Then y = 4 + 1 = 5. Check: 4 + 5 = 9."
+      ],
+      "solution_steps_te": [
+        "y = x + 1 ను x + y = 9 లో ఉంచండి: x + (x + 1) = 9.",
+        "సరళీకరించండి: 2x + 1 = 9, కాబట్టి 2x = 8, x = 4.",
+        "అప్పుడు y = 4 + 1 = 5. తనిఖీ: 4 + 5 = 9."
+      ],
+      "hints": [
+        {"level": 1, "en": "y is already given as x + 1, so replace y in the other equation.", "te": "y ఇప్పటికే x + 1 గా ఇవ్వబడింది, రెండవ సమీకరణంలో y స్థానంలో ఉంచండి."},
+        {"level": 2, "en": "Collect the x terms: x + x makes 2x.", "te": "x పదాలను కలపండి: x + x = 2x."}
+      ],
+      "explanation_en": "Substitution turns the pair into one equation in x, which is then solved.",
+      "explanation_te": "ప్రతిక్షేపణ జతను x లో ఒకే సమీకరణంగా మారుస్తుంది, దానిని సాధిస్తాము."
+    },
+    {
+      "id": "q15",
+      "lesson_id": "lx",
+      "topic": "elimination",
+      "difficulty": 2,
+      "question_type": "ordered_pair",
+      "prompt_en": "Solve 2x + y = 11 and x - y = 4.",
+      "prompt_te": "2x + y = 11 మరియు x - y = 4 లను సాధించండి.",
+      "equations": ["2x + y = 11", "x - y = 4"],
+      "answer": "x=5, y=1",
+      "solution_steps_en": [
+        "Add the equations: 3x = 15, so x = 5.",
+        "Put x = 5 into x - y = 4: 5 - y = 4, so y = 1.",
+        "Check: 2(5) + 1 = 11 and 5 - 1 = 4."
+      ],
+      "solution_steps_te": [
+        "సమీకరణాలను కూడండి: 3x = 15, కాబట్టి x = 5.",
+        "x = 5 ను x - y = 4 లో ఉంచండి: 5 - y = 4, కాబట్టి y = 1.",
+        "తనిఖీ: 2(5) + 1 = 11 మరియు 5 - 1 = 4."
+      ],
+      "hints": [
+        {"level": 1, "en": "The y terms are +y and -y, so they cancel when added.", "te": "y పదాలు +y మరియు -y, కూడితే అవి రద్దవుతాయి."},
+        {"level": 2, "en": "Divide 15 by 3 to get x.", "te": "x పొందడానికి 15 ను 3 తో భాగించండి."}
+      ],
+      "explanation_en": "Adding removes y because the y terms have opposite signs.",
+      "explanation_te": "y పదాల గుర్తులు వ్యతిరేకంగా ఉన్నందున కూడితే y తొలగిపోతుంది."
+    },
+    {
+      "id": "q16",
+      "lesson_id": "lx",
+      "topic": "elimination",
+      "difficulty": 3,
+      "question_type": "ordered_pair",
+      "prompt_en": "Solve 3x + 2y = 16 and x + 2y = 8.",
+      "prompt_te": "3x + 2y = 16 మరియు x + 2y = 8 లను సాధించండి.",
+      "equations": ["3x + 2y = 16", "x + 2y = 8"],
+      "answer": "x=4, y=2",
+      "solution_steps_en": [
+        "Subtract the second equation from the first: 2x = 8, so x = 4.",
+        "Put x = 4 into x + 2y = 8: 4 + 2y = 8, so 2y = 4 and y = 2.",
+        "Check: 3(4) + 2(2) = 16 and 4 + 2(2) = 8."
+      ],
+      "solution_steps_te": [
+        "మొదటి సమీకరణం నుండి రెండవదాన్ని తీసివేయండి: 2x = 8, కాబట్టి x = 4.",
+        "x = 4 ను x + 2y = 8 లో ఉంచండి: 4 + 2y = 8, కాబట్టి 2y = 4, y = 2.",
+        "తనిఖీ: 3(4) + 2(2) = 16 మరియు 4 + 2(2) = 8."
+      ],
+      "hints": [
+        {"level": 1, "en": "Both equations have +2y, so subtracting removes y.", "te": "రెండు సమీకరణాలలో +2y ఉంది, తీసివేస్తే y తొలగిపోతుంది."},
+        {"level": 2, "en": "After x = 4, find 2y from x + 2y = 8.", "te": "x = 4 తర్వాత x + 2y = 8 నుండి 2y కనుగొనండి."}
+      ],
+      "explanation_en": "Subtracting the equations with the same y term removes y directly.",
+      "explanation_te": "ఒకే y పదం ఉన్న సమీకరణాలను తీసివేస్తే నేరుగా y తొలగిపోతుంది."
+    }
+  ]
+}

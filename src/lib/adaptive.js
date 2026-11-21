@@ -1,4 +1,7 @@
+import { topicKey } from './i18n.js';
+
 // Picks the next question: focus on the weakest topic, otherwise follow chapter order.
+// Attempts store topicKey(question), so topics are compared by that key.
 export function pickNextQuestion(questions, attempts) {
   if (!questions || questions.length === 0) return undefined;
 
@@ -13,15 +16,15 @@ export function pickNextQuestion(questions, attempts) {
   let topic = null;
   let best = 0;
   for (const q of questions) {
-    const n = mistakes.get(q.topic) || 0;
+    const n = mistakes.get(topicKey(q)) || 0;
     if (n > best) {
       best = n;
-      topic = q.topic;
+      topic = topicKey(q);
     }
   }
 
   if (topic !== null) {
-    const topicQs = questions.filter((q) => q.topic === topic);
+    const topicQs = questions.filter((q) => topicKey(q) === topic);
     return topicQs.find((q) => !solved.has(q.id)) ?? topicQs[0];
   }
 

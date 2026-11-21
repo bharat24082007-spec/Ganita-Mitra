@@ -1,15 +1,19 @@
-// Only the doubt, question id and approved steps are sent. No name, PIN or profile id.
-export async function askTutor(doubt, questionId, solutionSteps) {
+import { apiRequest, getStudentToken } from './api.js';
+
+// Sends one tutor question with the student token. The message, optional question id and language
+// are the only fields sent: no solution steps, no student id, no name.
+// Returns { ok, reply, ... } or { ok: false, status, code } so the UI can pick the right message.
+export async function askTutor(message, questionId, language = 'te') {
+  const body = { message: String(message ?? '').trim(), language };
+  if (questionId) body.questionId = questionId;
   try {
-    const res = await fetch('/api/tutor', {
+    const res = await apiRequest('/api/tutor', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ doubt: doubt.trim(), questionId, solutionSteps }),
+      token: getStudentToken(),
+      body,
     });
-    const json = await res.json().catch(() => ({}));
-    if (res.ok) return { ok: true, reply: json.reply };
-    return { ok: false, error: json.detail || 'ట్యూటర్ ప్రస్తుతం అందుబాటులో లేదు' };
-  } catch {
-    return { ok: false, error: 'ఇంటర్నెట్ అవసరం — ట్యూటర్ పనిచేయదు' };
+    return { ok: true, reply: res.reply, hint: res.hint, steps: res.steps, finalAnswer: res.final_answer };
+  } catch (err) {
+    return { ok: false, status: err.status ?? 0, code: err.code ?? 'network' };
   }
 }

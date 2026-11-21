@@ -1,7 +1,8 @@
 const DB_NAME = 'ganita-mitra';
 // Version 2 adds uuid + synced fields to attempts so they can be synced later.
 // Version 3 adds the lessonViews store used for the progress screen.
-const DB_VERSION = 3;
+// Version 4 adds the prefs store used for the language choice.
+const DB_VERSION = 4;
 
 // Cached so every caller shares one connection instead of reopening the DB.
 let dbPromise = null;
@@ -50,6 +51,10 @@ export function openDB() {
         // Keyed by profileId:lessonId so each lesson counts once per profile.
         if (event.oldVersion < 3 && !db.objectStoreNames.contains('lessonViews')) {
           db.createObjectStore('lessonViews', { keyPath: 'key' });
+        }
+        // Small key/value store for per-profile settings such as language.
+        if (event.oldVersion < 4 && !db.objectStoreNames.contains('prefs')) {
+          db.createObjectStore('prefs', { keyPath: 'key' });
         }
       };
       req.onsuccess = () => resolve(req.result);
@@ -153,6 +158,68 @@ export async function markLessonViewed(profileId, lessonId) {
     });
   } catch {
     // Swallowed on purpose; a failed view record is not worth an error screen.
+  }
+}
+
+// Returns the saved language ('te' or 'en') for one profile, or null if none. Never throws.
+export async function getLang(profileId) {
+  try {
+    const db = await openDB();
+    const row = await new Promise((resolve, reject) => {
+      const req = db.transaction('prefs', 'readonly').objectStore('prefs').get('lang:' + profileId);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return row ? row.lang : null;
+  } catch {
+    return null;
+  }
+}
+
+// Saves the language for one profile. Never throws, so a failed save never blocks the UI.
+export async function setLang(profileId, lang) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('prefs', 'readwrite');
+      tx.objectStore('prefs').put({ key: 'lang:' + profileId, lang });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+  } catch {
+    // Swallowed on purpose; the language still works for this session.
+  }
+}
+
+// Last language picked anywhere, used on the profile screen before a profile is chosen.
+export async function getLastLang() {
+  try {
+    const db = await openDB();
+    const row = await new Promise((resolve, reject) => {
+      const req = db.transaction('prefs', 'readonly').objectStore('prefs').get('__last__');
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return row ? row.lang : 'te';
+  } catch {
+    return 'te';
+  }
+}
+
+// Saves the last language picked. Never throws.
+export async function setLastLang(lang) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('prefs', 'readwrite');
+      tx.objectStore('prefs').put({ key: '__last__', lang });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+  } catch {
+    // Swallowed on purpose; the default language is used next time.
   }
 }
 

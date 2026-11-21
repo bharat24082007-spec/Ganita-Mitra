@@ -1,64 +1,110 @@
 import { useEffect, useState } from 'react';
-import { getAttempts, getLessonViews } from '../lib/db.js';
-import { computeStats } from '../lib/stats.js';
+import { apiRequest, getStudentToken } from '../lib/api.js';
+import { topicLabel, useLang } from '../lib/i18n.js';
 import SyncIndicator from './SyncIndicator.jsx';
 
-function StatCard({ label, value, unit = '' }) {
+// Ring geometry: circle radius 40 in a 100x100 box, stroke 10
+const RING_R = 40;
+const RING_C = 2 * Math.PI * RING_R;
+
+// Accuracy ring: the violet arc length shows the percentage
+function AccuracyRing({ value }) {
+  const pct = Math.min(100, Math.max(0, value));
   return (
-    <div className="bg-white rounded-2xl p-4 shadow flex flex-col gap-1">
-      <span className="text-lg text-gray-700">{label}</span>
-      <p className="text-3xl font-bold">
-        {value}
-        {unit}
-      </p>
+    <div className="relative w-36 h-36" role="img" aria-label={`${pct}%`}>
+      <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90" aria-hidden="true">
+        {/* Track */}
+        <circle cx="50" cy="50" r={RING_R} fill="none" strokeWidth="10" className="stroke-violet-100" />
+        {/* Progress arc, starts at the top */}
+        <circle
+          cx="50"
+          cy="50"
+          r={RING_R}
+          fill="none"
+          strokeWidth="10"
+          strokeLinecap="round"
+          className="stroke-violet-600"
+          strokeDasharray={RING_C}
+          strokeDashoffset={RING_C * (1 - pct / 100)}
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-2xl font-bold">
+        {pct}%
+      </span>
     </div>
   );
 }
 
-export default function ProgressScreen({ profile, onPractice }) {
-  const [stats, setStats] = useState(null);
+// Big-number tile for lessons and questions
+function StatCard({ label, value }) {
+  return (
+    <div className="card p-4 flex flex-col gap-1">
+      <span className="text-lg text-gray-700">{label}</span>
+      <p className="text-3xl font-bold">{value}</p>
+    </div>
+  );
+}
+
+// All numbers come from GET /api/students/{id}/progress. Nothing is computed in the browser.
+export default function ProgressScreen({ profile, questions, onPractice }) {
+  const { lang, t } = useLang();
+  const [report, setReport] = useState(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    async function load() {
-      // Clear old numbers so a profile switch never shows the previous learner's stats
-      setStats(null);
-      const attempts = await getAttempts(profile.id);
-      const views = await getLessonViews(profile.id);
-      if (!cancelled) setStats(computeStats(attempts, views));
-    }
-    load();
+    // Clear old numbers so a profile switch never shows the previous learner's stats
+    setReport(null);
+    setError(false);
+    apiRequest(`/api/students/${encodeURIComponent(profile.id)}/progress`, { token: getStudentToken() })
+      .then((res) => {
+        if (!cancelled) setReport(res);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      });
     return () => {
       cancelled = true;
     };
   }, [profile.id]);
 
-  if (!stats) return <p className="text-xl">లోడ్ అవుతోంది...</p>;
+  if (error) return <p className="text-xl text-red-600">{t('progressLoadFailed')}</p>;
+  if (!report) return <p className="text-xl">{t('loading')}</p>;
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">నా పురోగతి</h2>
+      <h2 className="text-2xl font-bold">{t('myProgress')}</h2>
 
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard label="పూర్తి చేసిన పాఠాలు" value={stats.lessonsCompleted} />
-        <StatCard label="అభ్యసించిన ప్రశ్నలు" value={stats.questionsAttempted} />
-        <StatCard label="ఖచ్చితత్వం" value={stats.accuracy} unit="%" />
-        <StatCard label="వరుస రోజులు" value={stats.streak} unit=" రోజులు" />
+      {/* Accuracy ring with its label underneath */}
+      <div className="card p-4 flex flex-col items-center gap-2">
+        <AccuracyRing value={report.accuracy_pct} />
+        <span className="text-lg text-gray-700">{t('accuracyLabel')}</span>
       </div>
 
-      <h3 className="text-xl font-bold">బలహీన అంశాలు</h3>
-      {stats.weakTopics.length === 0 ? (
-        <p className="text-lg">ఇంకా బలహీన అంశాలు లేవు</p>
+      {/* Lessons and questions as two stat tiles */}
+      <div className="grid grid-cols-2 gap-3">
+        <StatCard label={t('lessonsDone')} value={report.lessons_completed} />
+        <StatCard label={t('questionsTried')} value={report.questions_attempted} />
+      </div>
+
+      <h3 className="text-xl font-bold">{t('weakTopics')}</h3>
+      {report.weak_topics.length === 0 ? (
+        <div className="card p-4 flex items-center gap-3">
+          <span className="text-3xl" aria-hidden="true">🎉</span>
+          <p className="text-lg">{t('noWeakTopics')}</p>
+        </div>
       ) : (
-        stats.weakTopics.map((topic) => (
-          <div key={topic} className="bg-white rounded-2xl p-4 shadow flex flex-col gap-3">
-            <span className="text-xl">{topic}</span>
+        report.weak_topics.map((topic) => (
+          <div key={topic} className="card p-4 flex flex-col gap-3">
+            <span className="self-start rounded-full bg-rose-100 text-rose-800 text-lg font-semibold px-4 py-2">
+              {topicLabel(questions || [], topic, lang)}
+            </span>
             <button
               type="button"
               onClick={() => onPractice(topic)}
-              className="min-h-[56px] bg-violet-600 text-white text-lg rounded-xl w-full"
+              className="min-h-[52px] w-full rounded-2xl bg-violet-600 text-white text-lg font-semibold"
             >
-              ఈ అంశం ప్రాక్టీస్ చేయండి
+              {t('practiceTopic')}
             </button>
           </div>
         ))
