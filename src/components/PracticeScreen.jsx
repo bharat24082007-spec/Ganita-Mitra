@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { addAttempt, getAttempts } from '../lib/db.js';
 import { pickNextQuestion } from '../lib/adaptive.js';
 import { checkAnswer, ANSWER_FORMAT_HINT } from '../lib/checkAnswer.js';
+import TutorPanel from './TutorPanel.jsx';
 
 export default function PracticeScreen({ profile, questions, onAttemptSaved }) {
   const [question, setQuestion] = useState(null);
@@ -98,6 +99,8 @@ export default function PracticeScreen({ profile, questions, onAttemptSaved }) {
         placeholder="x=?, y=?"
         className="text-2xl min-h-[56px] border-2 rounded-xl px-4 bg-white"
       />
+
+      <TutorPanel question={question} />
 
       <button
         type="button"

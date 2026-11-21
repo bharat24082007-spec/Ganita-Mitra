@@ -19,6 +19,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Never intercept API calls; let them go straight to the network
+  if (new URL(event.request.url).pathname.startsWith('/api/')) return;
+
   const req = event.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
 

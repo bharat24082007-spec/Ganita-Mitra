@@ -4,6 +4,7 @@ import PinPad from './components/PinPad.jsx';
 import LessonScreen from './components/LessonScreen.jsx';
 import PracticeScreen from './components/PracticeScreen.jsx';
 import OfflineBadge from './components/OfflineBadge.jsx';
+import { startSyncOnReconnect } from './lib/sync.js';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -22,6 +23,9 @@ export default function App() {
       .then(setChapter)
       .catch(() => setLoadError(true));
   }, []);
+
+  // Push queued attempts on load and whenever the connection returns
+  useEffect(() => startSyncOnReconnect(), []);
 
   let body;
   if (loadError) {

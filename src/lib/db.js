@@ -1,17 +1,51 @@
 const DB_NAME = 'ganita-mitra';
-const DB_VERSION = 1;
+// Version 2 adds uuid + synced fields to attempts so they can be synced later.
+const DB_VERSION = 2;
 
 // Cached so every caller shares one connection instead of reopening the DB.
 let dbPromise = null;
+
+// Random ids let the server de-duplicate retried uploads. Fallback covers older browsers.
+export function newUuid() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+}
 
 export function openDB() {
   if (!dbPromise) {
     dbPromise = new Promise((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
-      req.onupgradeneeded = () => {
+      req.onupgradeneeded = (event) => {
+        const db = req.result;
+        const tx = event.target.transaction;
+        let store;
+        // Guard so re-running the upgrade never throws on an existing store or index.
+        if (!db.objectStoreNames.contains('attempts')) {
+          store = db.createObjectStore('attempts', { keyPath: 'id', autoIncrement: true });
+        } else {
+          store = tx.objectStore('attempts');
+        }
         // The profileId index lets us load one profile's history without scanning all rows.
-        const store = req.result.createObjectStore('attempts', { keyPath: 'id', autoIncrement: true });
-        store.createIndex('profileId', 'profileId');
+        if (!store.indexNames.contains('profileId')) {
+          store.createIndex('profileId', 'profileId');
+        }
+        // Backfill old (v1) rows so every attempt has a uuid and is marked unsynced.
+        if (event.oldVersion < 2) {
+          const cursorReq = store.openCursor();
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result;
+            if (!cursor) return;
+            const record = cursor.value;
+            if (!record.uuid) {
+              record.uuid = newUuid();
+              record.synced = false;
+              cursor.update(record);
+            }
+            cursor.continue();
+          };
+        }
       };
       req.onsuccess = () => resolve(req.result);
       // Clear the cache on failure so a later call can retry.
@@ -28,7 +62,13 @@ export async function addAttempt(attempt) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('attempts', 'readwrite');
-    const req = tx.objectStore('attempts').add({ ...attempt, timestamp: new Date().toISOString() });
+    // Stored in the same call so the attempt is never lost before it is synced.
+    const req = tx.objectStore('attempts').add({
+      ...attempt,
+      timestamp: new Date().toISOString(),
+      uuid: newUuid(),
+      synced: false,
+    });
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
@@ -50,4 +90,42 @@ export async function getAttempts(profileId) {
     // Missing or broken history should not crash the lesson screen.
     return [];
   }
+}
+
+// Unsynced = synced flag missing or false. Filtered in JS to keep the query simple.
+export async function getUnsyncedAttempts() {
+  try {
+    const db = await openDB();
+    const all = await new Promise((resolve, reject) => {
+      const req = db.transaction('attempts', 'readonly').objectStore('attempts').getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return all.filter((r) => r.synced !== true);
+  } catch {
+    return [];
+  }
+}
+
+// One readwrite transaction so either all accepted rows are marked or none are.
+export async function markSynced(uuids) {
+  if (!uuids || uuids.length === 0) return;
+  const db = await openDB();
+  const wanted = new Set(uuids);
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('attempts', 'readwrite');
+    const store = tx.objectStore('attempts');
+    const req = store.getAll();
+    req.onsuccess = () => {
+      for (const record of req.result) {
+        if (wanted.has(record.uuid)) {
+          record.synced = true;
+          store.put(record);
+        }
+      }
+    };
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
 }
