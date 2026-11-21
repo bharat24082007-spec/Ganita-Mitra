@@ -1,6 +1,6 @@
 import { PROFILES } from '../lib/profiles.js';
 
-export default function ProfileScreen({ onSelect }) {
+export default function ProfileScreen({ onSelect, onParentView }) {
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-3xl font-bold">ఈరోజు ఎవరు నేర్చుకుంటున్నారు?</h2>
@@ -16,6 +16,14 @@ export default function ProfileScreen({ onSelect }) {
           <span className="text-2xl font-semibold">{p.name}</span>
         </button>
       ))}
+
+      <button
+        type="button"
+        onClick={() => onParentView()}
+        className="min-h-[56px] bg-white border-2 border-violet-600 text-violet-700 text-lg rounded-xl w-full"
+      >
+        తల్లిదండ్రులు / ఉపాధ్యాయుల వీక్షణ
+      </button>
     </div>
   );
 }

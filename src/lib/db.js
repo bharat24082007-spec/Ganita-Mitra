@@ -1,6 +1,7 @@
 const DB_NAME = 'ganita-mitra';
 // Version 2 adds uuid + synced fields to attempts so they can be synced later.
-const DB_VERSION = 2;
+// Version 3 adds the lessonViews store used for the progress screen.
+const DB_VERSION = 3;
 
 // Cached so every caller shares one connection instead of reopening the DB.
 let dbPromise = null;
@@ -45,6 +46,10 @@ export function openDB() {
             }
             cursor.continue();
           };
+        }
+        // Keyed by profileId:lessonId so each lesson counts once per profile.
+        if (event.oldVersion < 3 && !db.objectStoreNames.contains('lessonViews')) {
+          db.createObjectStore('lessonViews', { keyPath: 'key' });
         }
       };
       req.onsuccess = () => resolve(req.result);
@@ -128,4 +133,40 @@ export async function markSynced(uuids) {
     tx.onerror = () => reject(tx.error);
     tx.onabort = () => reject(tx.error);
   });
+}
+
+// Records that a learner opened a lesson. Never throws: progress tracking must not block lessons.
+export async function markLessonViewed(profileId, lessonId) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('lessonViews', 'readwrite');
+      tx.objectStore('lessonViews').put({
+        key: profileId + ':' + lessonId,
+        profileId,
+        lessonId,
+        viewedAt: new Date().toISOString(),
+      });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+  } catch {
+    // Swallowed on purpose; a failed view record is not worth an error screen.
+  }
+}
+
+// Returns all lesson view records for one profile. Filtered in JS, like getUnsyncedAttempts.
+export async function getLessonViews(profileId) {
+  try {
+    const db = await openDB();
+    const all = await new Promise((resolve, reject) => {
+      const req = db.transaction('lessonViews', 'readonly').objectStore('lessonViews').getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return all.filter((r) => r.profileId === profileId);
+  } catch {
+    return [];
+  }
 }

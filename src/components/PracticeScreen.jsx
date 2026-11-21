@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { addAttempt, getAttempts } from '../lib/db.js';
 import { pickNextQuestion } from '../lib/adaptive.js';
 import { checkAnswer, ANSWER_FORMAT_HINT } from '../lib/checkAnswer.js';
 import TutorPanel from './TutorPanel.jsx';
 
-export default function PracticeScreen({ profile, questions, onAttemptSaved }) {
+export default function PracticeScreen({ profile, questions, onAttemptSaved, topicFilter }) {
   const [question, setQuestion] = useState(null);
   const [input, setInput] = useState('');
   const [message, setMessage] = useState({ text: '', ok: false });
@@ -15,14 +15,21 @@ export default function PracticeScreen({ profile, questions, onAttemptSaved }) {
   // Prevents saving the same question twice (double tap, rapid clicks)
   const savedRef = useRef(false);
 
+  // Memoized so the load effect only re-runs when the pool really changes
+  const pool = useMemo(
+    () => (topicFilter ? questions.filter((q) => q.topic === topicFilter) : questions),
+    [questions, topicFilter]
+  );
+
   async function loadNext() {
+    if (pool.length === 0) return;
     const attempts = await getAttempts(profile.id);
     const mapped = attempts.map((a) => ({
       questionId: a.questionId,
       correct: a.correct,
       topic: a.topic,
     }));
-    const q = pickNextQuestion(questions, mapped);
+    const q = pickNextQuestion(pool, mapped);
     savedRef.current = false;
     setQuestion(q);
     setHintsShown(0);
@@ -36,7 +43,7 @@ export default function PracticeScreen({ profile, questions, onAttemptSaved }) {
   useEffect(() => {
     loadNext();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile.id, questions]);
+  }, [profile.id, pool, topicFilter]);
 
   // Hints and solution are passed in explicitly so the saved record never reads stale state
   async function finish(correct, hints, solution) {
@@ -76,6 +83,10 @@ export default function PracticeScreen({ profile, questions, onAttemptSaved }) {
     finish(false, hintsShown, true);
   }
 
+  if (pool.length === 0) {
+    return <p className="text-xl">ఈ అంశంలో ప్రశ్నలు లేవు</p>;
+  }
+
   if (!question) {
     return <p className="text-xl">లోడ్ అవుతోంది...</p>;
   }
@@ -84,6 +95,12 @@ export default function PracticeScreen({ profile, questions, onAttemptSaved }) {
 
   return (
     <div className="flex flex-col gap-4">
+      {topicFilter && (
+        <span className="self-start rounded-full bg-yellow-100 px-4 py-2 text-lg">
+          అంశం: {topicFilter}
+        </span>
+      )}
+
       <span className="self-start rounded-full bg-violet-100 px-4 py-2 text-lg">
         {question.topic}
       </span>

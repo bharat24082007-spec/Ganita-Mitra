@@ -3,14 +3,18 @@ import ProfileScreen from './components/ProfileScreen.jsx';
 import PinPad from './components/PinPad.jsx';
 import LessonScreen from './components/LessonScreen.jsx';
 import PracticeScreen from './components/PracticeScreen.jsx';
+import ProgressScreen from './components/ProgressScreen.jsx';
+import ParentView from './components/ParentView.jsx';
 import OfflineBadge from './components/OfflineBadge.jsx';
 import { startSyncOnReconnect } from './lib/sync.js';
+import { PARENT_PIN } from './lib/profiles.js';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
   const [selected, setSelected] = useState(null);
   const [currentProfile, setCurrentProfile] = useState(null);
   const [tab, setTab] = useState('lesson');
+  const [practiceTopic, setPracticeTopic] = useState(null);
   const [chapter, setChapter] = useState(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -39,6 +43,7 @@ export default function App() {
           setSelected(p);
           setScreen('pin');
         }}
+        onParentView={() => setScreen('parentPin')}
       />
     );
   } else if (screen === 'pin') {
@@ -57,6 +62,22 @@ export default function App() {
         onCancel={() => setScreen('profile')}
       />
     );
+  } else if (screen === 'parentPin') {
+    body = (
+      <PinPad
+        name="తల్లిదండ్రులు / ఉపాధ్యాయులు"
+        onSubmit={(pin) => {
+          if (pin === PARENT_PIN) {
+            setScreen('parent');
+            return true;
+          }
+          return false;
+        }}
+        onCancel={() => setScreen('profile')}
+      />
+    );
+  } else if (screen === 'parent') {
+    body = <ParentView onExit={() => setScreen('profile')} />;
   } else {
     body = (
       <div className="flex flex-col gap-4">
@@ -70,6 +91,7 @@ export default function App() {
             onClick={() => {
               setCurrentProfile(null);
               setSelected(null);
+              setPracticeTopic(null);
               setScreen('profile');
             }}
             className="min-h-[48px] px-3 bg-gray-200 rounded-xl text-lg"
@@ -80,7 +102,7 @@ export default function App() {
 
         <h1 className="text-2xl font-bold">{chapter.chapter}</h1>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <button
             type="button"
             onClick={() => setTab('lesson')}
@@ -99,15 +121,44 @@ export default function App() {
           >
             అభ్యాసం
           </button>
+          <button
+            type="button"
+            onClick={() => setTab('progress')}
+            className={`min-h-[56px] text-xl rounded-xl ${
+              tab === 'progress' ? 'bg-violet-600 text-white' : 'bg-white'
+            }`}
+          >
+            పురోగతి
+          </button>
         </div>
 
         {tab === 'lesson' ? (
-          <LessonScreen chapter={chapter} />
+          <LessonScreen chapter={chapter} profileId={currentProfile.id} />
+        ) : tab === 'practice' ? (
+          <>
+            {practiceTopic && (
+              <button
+                type="button"
+                onClick={() => setPracticeTopic(null)}
+                className="min-h-[48px] self-start px-3 bg-gray-200 rounded-xl text-lg"
+              >
+                అన్ని అంశాలు
+              </button>
+            )}
+            <PracticeScreen
+              profile={currentProfile}
+              questions={chapter.questions}
+              onAttemptSaved={() => {}}
+              topicFilter={practiceTopic || undefined}
+            />
+          </>
         ) : (
-          <PracticeScreen
+          <ProgressScreen
             profile={currentProfile}
-            questions={chapter.questions}
-            onAttemptSaved={() => {}}
+            onPractice={(topic) => {
+              setPracticeTopic(topic);
+              setTab('practice');
+            }}
           />
         )}
       </div>
