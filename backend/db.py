@@ -18,7 +18,19 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-DB_PATH = os.environ.get("DATABASE_PATH", "backend/data/tutor.db")
+from dotenv import load_dotenv
+
+# Load backend/.env before DATABASE_PATH is read below; variables already set in the environment win.
+load_dotenv(Path(__file__).with_name(".env"), override=False)
+
+# Relative DATABASE_PATH values are resolved against the project root (parent of backend/),
+# not the current working directory, so the database location does not depend on where the server starts.
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_configured_db_path = os.environ.get("DATABASE_PATH", "")
+if _configured_db_path:
+    DB_PATH = _configured_db_path if os.path.isabs(_configured_db_path) else os.path.join(_PROJECT_ROOT, _configured_db_path)
+else:
+    DB_PATH = os.path.join(_PROJECT_ROOT, "backend", "data", "tutor.db")
 
 _write_lock = threading.Lock()
 
@@ -90,6 +102,13 @@ _SCHEMA = [
         failed_pin_count INTEGER NOT NULL DEFAULT 0,
         locked_until REAL NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS pin_login_attempts (
+        device_id TEXT PRIMARY KEY,
+        failures INTEGER NOT NULL DEFAULT 0,
+        locked_until REAL NOT NULL DEFAULT 0
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_attempts_student_topic ON attempts(student_id, topic)",
@@ -205,6 +224,12 @@ def list_students(path=None):
     return [dict(r) for r in rows]
 
 
+def list_students_auth(path=None):
+    """Includes pin_hash / pin_salt. Internal use only (PIN-only login and duplicate-PIN checks)."""
+    rows = _read(path, "SELECT * FROM students")
+    return [dict(r) for r in rows]
+
+
 def get_student_auth(student_id, path=None):
     """Includes pin_hash / pin_salt. Internal use only (PIN verification)."""
     row = _read_one(path, "SELECT * FROM students WHERE id = ?", (student_id,))
@@ -249,6 +274,45 @@ def reset_pin_failures(student_id, path=None):
 def delete_student(student_id, path=None):
     """Deletes the student; attempts, progress and tutor messages cascade."""
     _write(path, "DELETE FROM students WHERE id = ?", (student_id,))
+
+
+# ------------------------------------------------------- PIN login by device
+
+def get_pin_login_state(device_id, path=None):
+    row = _read_one(
+        path,
+        "SELECT failures, locked_until FROM pin_login_attempts WHERE device_id = ?",
+        (device_id,),
+    )
+    return dict(row) if row is not None else None
+
+
+def record_pin_login_failure(device_id, now, max_failures=5, lock_seconds=900, path=None):
+    """Count a failed PIN-only login for this device. On reaching max_failures, lock and reset the counter.
+
+    Single atomic upsert: the CASE expressions read the pre-update values of the existing row.
+    """
+    _write(
+        path,
+        """
+        INSERT INTO pin_login_attempts (device_id, failures, locked_until)
+        VALUES (?, 1, 0)
+        ON CONFLICT(device_id) DO UPDATE SET
+            locked_until = CASE WHEN pin_login_attempts.failures + 1 >= ?
+                                THEN ? ELSE pin_login_attempts.locked_until END,
+            failures = CASE WHEN pin_login_attempts.failures + 1 >= ?
+                            THEN 0 ELSE pin_login_attempts.failures + 1 END
+        """,
+        (device_id, max_failures, float(now) + float(lock_seconds), max_failures),
+    )
+
+
+def reset_pin_login_failures(device_id, path=None):
+    _write(
+        path,
+        "UPDATE pin_login_attempts SET failures = 0, locked_until = 0 WHERE device_id = ?",
+        (device_id,),
+    )
 
 
 # ----------------------------------------------------------------- parent

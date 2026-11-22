@@ -1,18 +1,37 @@
 @import "tailwindcss";
 
-/* Base look: warm page background, dark text, large text for a basic phone */
-html, body {
-  font-family: "Noto Sans Telugu", "Nirmala UI", system-ui, sans-serif;
-  font-size: 20px;
-  background: #fdf8f3;
-  color: #1f2937;
+/* Design tokens (Tailwind v4 theme): colours, radii and shadow used across the redesign */
+@theme {
+  --color-primary: #7625F5;
+  --color-primary-dark: #5B16CC;
+  --color-bg: #F8F7FC;
+  --color-surface: #FFFFFF;
+  --color-ink: #202033;
+  --color-muted: #77758A;
+  --color-accent: #F97316;
+  --color-success: #15803D;
+  --color-warning: #B45309;
+  --color-danger: #B91C1C;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --shadow-soft: 0 8px 24px rgba(32, 32, 51, 0.08);
 }
 
-/* Rounded white card with a soft violet shadow */
+/* Base look: soft page background, dark ink text, large text for a basic phone */
+html, body {
+  font-family: "Noto Sans Telugu", "Nirmala UI", "Segoe UI", system-ui, sans-serif;
+  font-size: 20px;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+/* Rounded white surface card with a soft shadow and a thin border */
 .card {
-  border-radius: 1rem;
-  background: #ffffff;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.1);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid #ECEAF4;
+  box-shadow: var(--shadow-soft);
 }
 
 /* Small "pop" for correct answers and rewards */

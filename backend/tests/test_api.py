@@ -68,9 +68,10 @@ def test_create_student_response_has_no_pin_fields(api):
 
 def test_fourth_student_create_returns_409(api):
     client, _main, _db = api
-    for _ in range(3):
-        assert _create(client).status_code == 201
-    r = _create(client)
+    # Distinct PINs: a repeated PIN is now rejected (409) before the profile cap is reached.
+    for pin in ("1111", "2222", "3333"):
+        assert _create(client, pin=pin).status_code == 201
+    r = _create(client, pin="4444")
     assert r.status_code == 409
 
 

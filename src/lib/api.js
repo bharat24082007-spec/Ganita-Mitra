@@ -50,7 +50,9 @@ export function errorKeyFor(err) {
     case ERROR_CODES.UNAUTHORIZED: return 'pinWrong';
     case ERROR_CODES.RATE_LIMITED: return 'pinLocked';
     case ERROR_CODES.NOT_FOUND: return 'profileMissing';
-    case ERROR_CODES.CONFLICT: return 'maxProfiles';
+    case ERROR_CODES.CONFLICT:
+      if (typeof err.detail === 'string' && err.detail.includes('PIN already in use')) return 'pinInUse';
+      return 'maxProfiles';
     case ERROR_CODES.UNAVAILABLE: return 'serverUnavailable';
     case ERROR_CODES.NETWORK: return 'networkError';
     default: return 'genericError';

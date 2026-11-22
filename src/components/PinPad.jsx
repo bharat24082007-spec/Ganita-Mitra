@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLang } from '../lib/i18n.js';
+import Button from './ui/Button.jsx';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
 
@@ -35,28 +36,28 @@ export default function PinPad({ name, title, onSubmit, onCancel }) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <h2 className="text-2xl font-bold text-center">{title ?? t('pinEnter', { name })}</h2>
+    <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6">
+      <h2 className="text-center text-2xl font-bold text-ink">{title ?? t('pinEnter', { name })}</h2>
 
       {/* Dots row; shakes on an error. The newest filled dot pops in. */}
       <div className={`flex gap-4 ${errorKey ? 'anim-shake' : ''}`} aria-label="PIN">
         {[0, 1, 2, 3].map((i) => (
           <span
             key={i}
-            className={`w-6 h-6 rounded-full border-2 border-violet-600 ${
-              i < digits.length ? 'bg-violet-600' : 'bg-white'
+            className={`h-5 w-5 rounded-full border-2 border-primary ${
+              i < digits.length ? 'bg-primary' : 'bg-surface'
             } ${i === digits.length - 1 ? 'anim-pop' : ''}`}
           />
         ))}
       </div>
 
       {errorKey && (
-        <p className="text-xl font-semibold text-red-600 text-center" aria-live="polite">
+        <p className="text-center text-lg font-semibold text-danger" aria-live="polite">
           {t(errorKey)}
         </p>
       )}
 
-      <div className="grid grid-cols-3 gap-3 w-full">
+      <div className="grid w-full grid-cols-3 gap-3">
         {KEYS.map((k, i) =>
           k === '' ? (
             <div key={i} />
@@ -67,10 +68,10 @@ export default function PinPad({ name, title, onSubmit, onCancel }) {
               onClick={() => press(k)}
               disabled={busy}
               aria-label={k === '⌫' ? 'Backspace' : k}
-              className="min-h-[72px] rounded-2xl bg-white shadow-md text-3xl font-semibold active:scale-95 transition disabled:opacity-50"
+              className="flex min-h-[56px] items-center justify-center rounded-lg border border-primary/15 bg-surface text-2xl font-semibold text-ink shadow-soft transition active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30 disabled:opacity-50"
             >
               {k === '⌫' ? (
-                <svg viewBox="0 0 24 24" className="w-8 h-8 mx-auto text-violet-700" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                <svg viewBox="0 0 24 24" className="mx-auto h-7 w-7 text-primary-dark" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
                   <path d="M9 5h11v14H9l-6-7 6-7z" strokeLinejoin="round" />
                   <path d="M13 9l5 6M18 9l-5 6" strokeLinecap="round" />
                 </svg>
@@ -82,13 +83,10 @@ export default function PinPad({ name, title, onSubmit, onCancel }) {
         )}
       </div>
 
-      <button
-        type="button"
-        onClick={onCancel}
-        className="min-h-[56px] w-full rounded-2xl bg-white border-2 border-violet-600 text-violet-700 text-lg font-semibold"
-      >
+      <Button variant="ghost" onClick={onCancel} className="h-[52px] w-full">
         {t('cancel')}
-      </button>
+      </Button>
     </div>
   );
 }
+

@@ -24,6 +24,7 @@ from tutor import (
     msg,
     TutorNotConfigured,
     TutorUpstreamError,
+    RateLimited,
     NOT_CONFIGURED_TE,
     NOT_CONFIGURED_EN,
     RATE_LIMITED_TE,
@@ -136,6 +137,11 @@ class PinVerify(BaseModel):
     pin: str = Field(pattern=r"^[0-9]{4}$")
 
 
+class PinLoginRequest(BaseModel):
+    pin: str = Field(pattern=r"^[0-9]{4}$")
+    device_id: str = Field(min_length=1, max_length=64, pattern=r"^[A-Za-z0-9-]+$")
+
+
 class Attempt(BaseModel):
     uuid: str = Field(min_length=1, max_length=64)
     profileId: str = Field(min_length=1, max_length=64)
@@ -210,6 +216,13 @@ def create_student(req: StudentCreate):
     with _profile_lock:
         if db.count_students() >= MAX_PROFILES:
             raise HTTPException(status_code=409, detail="Maximum 3 student profiles per device")
+        # PIN-only login needs each PIN to identify exactly one student, so reject a PIN already in use.
+        for existing in db.list_students_auth():
+            if security.verify_pin(req.pin, existing["pin_hash"], existing["pin_salt"]):
+                raise HTTPException(
+                    status_code=409,
+                    detail="PIN already in use on this device. Choose a different PIN.",
+                )
         pin_hash, pin_salt = security.hash_pin(req.pin)
         student_id = uuid.uuid4().hex
         db.insert_student(
@@ -225,11 +238,6 @@ def create_student(req: StudentCreate):
             }
         )
     return db.get_student_public(student_id)
-
-
-@app.get("/api/students")
-def list_students():
-    return db.list_students()
 
 
 @app.post("/api/students/{student_id}/verify-pin")
@@ -249,6 +257,36 @@ def verify_student_pin(student_id: str, req: PinVerify):
         "token": security.make_token(student_id, secret, ttl_seconds=SESSION_TTL_SECONDS),
         "expires_in": SESSION_TTL_SECONDS,
     }
+
+
+@app.post("/api/students/login-by-pin")
+def login_by_pin(req: PinLoginRequest):
+    # Failures are counted per device, so a shared PIN attempt cannot be spread across profiles.
+    # The response names the student only after a PIN match; it is never returned without one.
+    secret = _require_secret()
+    state = db.get_pin_login_state(req.device_id)
+    if state is not None and state["locked_until"] > time.time():
+        raise HTTPException(status_code=429, detail="Too many attempts. Try again later.")
+    matches = [
+        s
+        for s in db.list_students_auth()
+        if security.verify_pin(req.pin, s["pin_hash"], s["pin_salt"])
+    ]
+    if len(matches) == 1:
+        db.reset_pin_login_failures(req.device_id)
+        return {
+            "ok": True,
+            "student_id": matches[0]["id"],
+            "display_name": matches[0]["display_name"],
+            "avatar": matches[0]["avatar"],
+            "preferred_language": matches[0]["preferred_language"],
+            "token": security.make_token(matches[0]["id"], secret, ttl_seconds=SESSION_TTL_SECONDS),
+            "expires_in": SESSION_TTL_SECONDS,
+        }
+    if len(matches) == 0:
+        db.record_pin_login_failure(req.device_id, time.time())
+        raise HTTPException(status_code=401, detail="Incorrect PIN")
+    raise HTTPException(status_code=409, detail="PIN ambiguous; ask a parent to reset profiles.")
 
 
 @app.post("/api/parents/setup", status_code=201)
@@ -307,6 +345,9 @@ def tutor(req: TutorRequest, subject: str = Depends(require_student)):
         result = tutor_mod.answer_tutor(req.message, question, req.language, history)
     except TutorNotConfigured:
         raise HTTPException(status_code=503, detail=msg(req.language, NOT_CONFIGURED_TE, NOT_CONFIGURED_EN))
+    except RateLimited:
+        # Upstream (Gemini) quota exhausted: a friendly 429, never the exception text or credentials.
+        raise HTTPException(status_code=429, detail=msg(req.language, RATE_LIMITED_TE, RATE_LIMITED_EN))
     except TutorUpstreamError:
         raise HTTPException(status_code=502, detail=msg(req.language, UPSTREAM_TE, UPSTREAM_EN))
 
@@ -350,6 +391,9 @@ def sync(req: SyncRequest, subject: str = Depends(require_student)):
 
 
 class CheckRequest(BaseModel):
+    # extra="forbid" rejects unexpected fields such as "language" (the field is "lang").
+    model_config = ConfigDict(extra="forbid")
+
     answer: str = Field(max_length=100)
     lang: Literal["te", "en"] = "te"
     clientId: str | None = Field(default=None, min_length=1, max_length=64)
