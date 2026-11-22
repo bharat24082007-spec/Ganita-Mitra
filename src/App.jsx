@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import ProfileScreen from './components/ProfileScreen.jsx';
-import PinPad from './components/PinPad.jsx';
 import LessonScreen from './components/LessonScreen.jsx';
 import PracticeScreen from './components/PracticeScreen.jsx';
 import ProgressScreen from './components/ProgressScreen.jsx';
 import ParentView from './components/ParentView.jsx';
 import OfflineBadge from './components/OfflineBadge.jsx';
+import Card from './components/ui/Card.jsx';
+import Button from './components/ui/Button.jsx';
 import { BookIcon, PencilIcon, ChartIcon, SwitchIcon } from './components/Icons.jsx';
 import { flushQueue, startSyncOnReconnect } from './lib/sync.js';
 import { registerServiceWorker, applyUpdate } from './lib/swRegister.js';
-import { verifyStudentPin } from './lib/profiles.js';
-import { apiRequest, clearStudentToken, errorKeyFor, getStudentToken } from './lib/api.js';
+import { apiRequest, clearStudentToken, getStudentToken } from './lib/api.js';
 import { getLang, setLang, getLastLang, setLastLang } from './lib/db.js';
 import { DEFAULT_LANG, LangContext, loc, t } from './lib/i18n.js';
 
@@ -28,7 +28,6 @@ function toQuestion(row) {
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
-  const [selected, setSelected] = useState(null);
   const [currentProfile, setCurrentProfile] = useState(null);
   const [tab, setTab] = useState('lesson');
   const [practiceTopic, setPracticeTopic] = useState(null);
@@ -99,7 +98,6 @@ export default function App() {
   // Called after the server accepts a student's PIN (or a new profile is created)
   function enterProfile(profile) {
     setCurrentProfile(profile);
-    setSelected(null);
     setTab('lesson');
     setScreen('home');
     // The profile's saved language overrides the last used one, if it has one
@@ -124,29 +122,8 @@ export default function App() {
   } else if (screen === 'profile') {
     body = (
       <ProfileScreen
-        onSelect={(p) => {
-          setSelected(p);
-          setScreen('pin');
-        }}
         onEnter={enterProfile}
         onParentView={() => setScreen('parent')}
-      />
-    );
-  } else if (screen === 'pin') {
-    body = (
-      <PinPad
-        name={selected.name}
-        onSubmit={async (pin) => {
-          // The server checks the PIN; the browser only sends it
-          try {
-            await verifyStudentPin(selected.id, pin);
-          } catch (err) {
-            return errorKeyFor(err);
-          }
-          enterProfile(selected);
-          return null;
-        }}
-        onCancel={() => setScreen('profile')}
       />
     );
   } else if (screen === 'parent') {
@@ -154,6 +131,31 @@ export default function App() {
   } else {
     body = (
       <div className="flex flex-col gap-4">
+        {/* Dashboard header: greeting, chapter title, and the two main actions (no invented stats) */}
+        <Card className="flex flex-col gap-3 border border-primary/15 shadow-soft">
+          <div className="flex flex-col gap-1">
+            <p className="text-xl font-semibold text-ink">
+              {tx('greetingHello')}, {currentProfile.name}
+            </p>
+            <p className="text-lg text-muted">{loc(chapter.chapter, lang)}</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="primary" className="flex-1 min-w-[140px]" onClick={() => setTab('lesson')}>
+              {tx('continueLearning')}
+            </Button>
+            <Button
+              variant="secondary"
+              className="flex-1 min-w-[140px]"
+              onClick={() => {
+                setTab('practice');
+                setPracticeTopic(null);
+              }}
+            >
+              {tx('tabPractice')}
+            </Button>
+          </div>
+        </Card>
+
         {/* Chapter title in a card with an amber accent stripe */}
         <div className="card border-l-4 border-amber-500 p-4">
           <h1 className="text-2xl font-bold">{loc(chapter.chapter, lang)}</h1>
@@ -197,14 +199,14 @@ export default function App() {
   // Top bar on every screen: avatar and name (when a profile is set), language toggle,
   // and a switch-profile button (when a profile is set). The active language is highlighted.
   const topBar = (
-    <header className="sticky top-0 z-10 bg-white shadow-sm">
-      <div className="flex min-h-[64px] items-center justify-between gap-2 px-4 py-2">
+    <header className="sticky top-0 z-10 bg-surface shadow-sm">
+      <div className="flex min-h-[64px] flex-wrap items-center justify-between gap-2 px-4 py-2">
         <div className="flex min-w-0 items-center gap-2">
           {currentProfile && (
             <>
               <span
                 aria-hidden="true"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-100 text-2xl"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl"
               >
                 {currentProfile.avatar}
               </span>
@@ -212,16 +214,16 @@ export default function App() {
             </>
           )}
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             aria-pressed={lang === 'en'}
             onClick={() => changeLang(lang === 'te' ? 'en' : 'te')}
-            className="min-h-[44px] px-3 bg-white border-2 border-violet-600 text-violet-700 text-base rounded-xl font-semibold"
+            className="min-h-[44px] px-2 sm:px-3 bg-surface border-2 border-primary text-primary-dark text-base rounded-xl font-semibold"
           >
-            <span className={`px-1 rounded ${lang === 'te' ? 'bg-violet-600 text-white' : ''}`}>తెలుగు</span>
+            <span className={`px-1 rounded ${lang === 'te' ? 'bg-primary text-white' : ''}`}>తెలుగు</span>
             {' | '}
-            <span className={`px-1 rounded ${lang === 'en' ? 'bg-violet-600 text-white' : ''}`}>English</span>
+            <span className={`px-1 rounded ${lang === 'en' ? 'bg-primary text-white' : ''}`}>English</span>
           </button>
           {currentProfile && (
             <button
@@ -230,14 +232,14 @@ export default function App() {
                 // Switching profile signs the student out: the token is cleared from sessionStorage
                 clearStudentToken();
                 setCurrentProfile(null);
-                setSelected(null);
                 setPracticeTopic(null);
                 setScreen('profile');
               }}
-              className="flex min-h-[44px] items-center gap-1 px-3 bg-violet-50 text-violet-700 text-base rounded-xl font-semibold"
+              aria-label={tx('switchProfile')}
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 px-2 sm:px-3 bg-primary/10 text-primary-dark text-base rounded-xl font-semibold"
             >
               <SwitchIcon className="w-5 h-5" />
-              <span>{tx('switchProfile')}</span>
+              <span className="hidden sm:inline">{tx('switchProfile')}</span>
             </button>
           )}
         </div>
@@ -245,14 +247,14 @@ export default function App() {
     </header>
   );
 
-  // Bottom tab bar (home only): three equal tabs; the active one is violet with an amber top border
+  // Bottom tab bar (home only): three equal tabs; the active one is primary with an accent top border
   const tabs = [
     { key: 'lesson', label: tx('tabLesson'), Icon: BookIcon },
     { key: 'practice', label: tx('tabPractice'), Icon: PencilIcon },
     { key: 'progress', label: tx('tabProgress'), Icon: ChartIcon },
   ];
   const tabBar = (
-    <nav className="fixed bottom-0 inset-x-0 z-20 mx-auto grid w-full max-w-[480px] grid-cols-3 bg-white shadow-[0_-4px_14px_rgba(0,0,0,0.08)]">
+    <nav className="fixed bottom-0 inset-x-0 z-20 mx-auto grid w-full max-w-[480px] grid-cols-3 bg-surface shadow-[0_-4px_14px_rgba(0,0,0,0.08)]">
       {tabs.map(({ key, label, Icon }) => {
         const active = tab === key;
         return (
@@ -262,7 +264,7 @@ export default function App() {
             onClick={() => setTab(key)}
             aria-current={active ? 'page' : undefined}
             className={`flex min-h-[64px] flex-col items-center justify-center gap-1 border-t-4 text-lg font-semibold ${
-              active ? 'border-amber-500 text-violet-600' : 'border-transparent text-gray-500'
+              active ? 'border-accent text-primary' : 'border-transparent text-muted'
             }`}
           >
             <Icon className="w-7 h-7" />

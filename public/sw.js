@@ -1,6 +1,6 @@
 // Offline cache for the app shell and chapter data.
-const CACHE = 'ganita-mitra-v3';
-const PRECACHE = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg', '/data/chapter.json'];
+const CACHE = 'ganita-mitra-v4';
+const PRECACHE = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/data/chapter.json'];
 
 self.addEventListener('install', (event) => {
   // Do not skip waiting here: a new version waits until the user accepts the update prompt.

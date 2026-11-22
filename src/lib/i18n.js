@@ -13,6 +13,9 @@ export const STRINGS = {
   tabLesson: { te: 'పాఠం', en: 'Lesson' },
   tabPractice: { te: 'అభ్యాసం', en: 'Practice' },
   tabProgress: { te: 'పురోగతి', en: 'Progress' },
+  greetingHello: { te: 'నమస్కారం', en: 'Hello' },
+  continueLearning: { te: 'నేర్చుకోవడం కొనసాగించు', en: 'Continue learning' },
+
   allTopics: { te: 'అన్ని అంశాలు', en: 'All topics' },
   offline: { te: 'ఆఫ్‌లైన్ — ఇంటర్నెట్ లేదు', en: 'Offline — no internet' },
   example: { te: 'ఉదాహరణ', en: 'Example' },
@@ -99,6 +102,7 @@ export const STRINGS = {
   confirmPinTitle: { te: 'PIN మళ్లీ నమోదు చేయండి', en: 'Enter the PIN again' },
   pinMismatch: { te: 'PIN సరిపోలలేదు. మళ్లీ ప్రయత్నించండి', en: 'PINs do not match. Try again.' },
   maxProfiles: { te: 'ఒక పరికరంలో గరిష్టంగా 3 ప్రొఫైళ్లు మాత్రమే', en: 'Maximum 3 profiles on this device' },
+  pinInUse: { te: 'ఈ PIN ఈ పరికరంలో ఇప్పటికే వాడబడింది. వేరే PIN ఎంచుకోండి', en: 'This PIN is already used on this device. Choose a different PIN.' },
   tutorRateLimited: { te: 'ఇప్పుడు ప్రశ్నలు ఎక్కువయ్యాయి. కొంత సేపు ఆగి అడగండి', en: 'Too many questions right now. Wait a little and ask again.' },
   tutorUpstream: { te: 'ట్యూటర్ సేవలో సమస్య. మళ్లీ ప్రయత్నించండి', en: 'The tutor service had a problem. Try again.' },
   tutorNotConfigured: { te: 'ట్యూటర్ ఇంకా సెటప్ కాలేదు', en: 'The tutor is not set up yet.' },
